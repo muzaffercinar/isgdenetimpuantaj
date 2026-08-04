@@ -1645,8 +1645,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+   <!-- 
   ================================================================================
-  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Karakter Hatalari Giderilmis Surum)
+  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Guncellenmis Arayuz)
   ================================================================================
 -->
 <script>
@@ -1655,23 +1656,20 @@ document.addEventListener('DOMContentLoaded',init);
     const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v9";
     const ADMIN_USED_KEYS_DB = "bekard_admin_used_keys";
 
-    // 1) Sabit Tohumlu Rastgele Sayi Uretici
     let seed = 2026;
     function getNextRandom() {
         let x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     }
 
-    // 2) 4 Harf + 4 Rakam Ureten Algoritma
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     function generateFormatCode() {
         let str = "";
         for(let i=0; i<4; i++) str += letters[Math.floor(getNextRandom() * 26)];
         for(let i=0; i<4; i++) str += Math.floor(getNextRandom() * 10);
-        return str; // Orn: ABCD1234
+        return str;
     }
 
-    // 3) 6000 Sifrelik Veritabanini Hafizada Canlandirma
     const KEY_POOL = { demo15: [], demo30: [], full365: [], full730: [] };
     
     for(let i=0; i<1500; i++) KEY_POOL.demo15.push(generateFormatCode());
@@ -1679,7 +1677,6 @@ document.addEventListener('DOMContentLoaded',init);
     for(let i=0; i<1500; i++) KEY_POOL.full365.push(generateFormatCode());
     for(let i=0; i<1500; i++) KEY_POOL.full730.push(generateFormatCode());
 
-    // 4) Yonetici Panelinin Kullandigi/Dagittigi Sifreleri Kaydetme
     function getUsedKeys() {
         try { return JSON.parse(localStorage.getItem(ADMIN_USED_KEYS_DB)) || []; } catch(e) { return []; }
     }
@@ -1706,7 +1703,6 @@ document.addEventListener('DOMContentLoaded',init);
         return "TUKENDI";
     }
 
-    // 5) Girilen Sifrenin Dogrulugunu Kontrol Etme
     function validateKey(inputKey) {
         inputKey = inputKey.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''); 
         if (KEY_POOL.demo15.includes(inputKey)) return { valid: true, days: 15, type: 'demo' };
@@ -1757,6 +1753,7 @@ document.addEventListener('DOMContentLoaded',init);
         if (!status.active) {
             createLockScreen(status.message || 'Sistemi kullanmak icin lutfen lisans kodunuzu girin.');
         } else {
+            injectStatusBadge(status.remainingDays);
             injectAdminTrigger();
         }
     });
@@ -1776,7 +1773,7 @@ document.addEventListener('DOMContentLoaded',init);
                 <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Giris Yap</button>
                 
                 <div style="margin-top: 30px;">
-                    <button id="bekardOpenAdmin" style="background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer; text-decoration: underline;">Yetkili / Yonetici Paneli</button>
+                    <button id="bekardOpenAdmin" style="background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer; text-decoration: underline;">Yonetici Paneli</button>
                 </div>
             </div>
         `;
@@ -1789,10 +1786,20 @@ document.addEventListener('DOMContentLoaded',init);
         document.getElementById('bekardOpenAdmin').addEventListener('click', openAdminPanel);
     }
 
+    function injectStatusBadge(remainingDays) {
+        const badge = document.createElement('div');
+        badge.style.cssText = "position: fixed; top: 15px; right: 20px; background: rgba(15, 23, 42, 0.85); border: 1px solid #334155; padding: 8px 16px; border-radius: 30px; font-size: 12px; color: #38bdf8; z-index: 9999; display: flex; align-items: center; gap: 8px; backdrop-filter: blur(8px); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); font-family: system-ui, sans-serif;";
+        const text = remainingDays > 3000 ? "Sinirsiz (Tam Surum)" : `Lisans Aktif: ${remainingDays} Gun Kaldi`;
+        badge.innerHTML = `<span style="font-size: 14px;">???</span> <span>${text}</span>`;
+        document.body.appendChild(badge);
+    }
+
     function injectAdminTrigger() {
         const btn = document.createElement('button');
-        btn.innerText = "Anahtar Dagitim Paneli";
-        btn.style.cssText = "position: fixed; bottom: 15px; left: 15px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 6px; font-size: 11px; z-index: 9999; cursor: pointer;";
+        btn.innerHTML = "?? Yonetici Paneli";
+        btn.style.cssText = "position: fixed; bottom: 20px; left: 20px; background: #1e293b; color: #f8fafc; border: 1px solid #475569; padding: 10px 18px; border-radius: 10px; font-size: 12px; font-weight: bold; z-index: 9999; cursor: pointer; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); transition: all 0.2s; font-family: system-ui, sans-serif;";
+        btn.onmouseover = () => { btn.style.background = "#334155"; btn.style.borderColor = "#60a5fa"; };
+        btn.onmouseout = () => { btn.style.background = "#1e293b"; btn.style.borderColor = "#475569"; };
         document.body.appendChild(btn);
         btn.addEventListener('click', openAdminPanel);
     }
@@ -1811,8 +1818,8 @@ document.addEventListener('DOMContentLoaded',init);
         const renderPanel = () => {
             modal.innerHTML = `
                 <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 450px; color: white; position: relative;">
-                    <button onclick="document.getElementById('bekard-admin-modal').remove(); if(!BekardLicenseManager.CheckStatus().active) location.reload();" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">?</button>
-                    <h3 style="margin-bottom: 20px; font-size: 16px; color: #38bdf8;">Lisans Dagitim Paneli</h3>
+                    <button onclick="document.getElementById('bekard-admin-modal').remove(); location.reload();" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">?</button>
+                    <h3 style="margin-bottom: 20px; font-size: 16px; color: #38bdf8;">Yonetici Paneli</h3>
                     
                     <div id="newKeyDisplay" style="display: none; background: #064e3b; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
                         <div style="font-size: 11px; color: #a7f3d0; margin-bottom: 5px;">Musteriye Verilecek Yeni Sifre:</div>
