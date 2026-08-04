@@ -1632,8 +1632,9 @@ document.addEventListener('DOMContentLoaded',init);
 <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 MERKEZÝ LÝSANS, GÜVENLÝK VE AKTÝF KULLANICI SAYACI MÝMARÝSÝ
+  BEKARD v2026 MERKEZÝ LÝSANS VE GÜVENLÝK MÝMARÝSÝ (KUTSAL UTF-8 KODLAMA)
   Patent: 2026/003199 | Yetki: Yetkilendirilmiþ Yönetici
   ================================================================================
 -->
@@ -1659,12 +1660,10 @@ document.addEventListener('DOMContentLoaded',init);
         return fid;
     }
 
-    // Aktif kullanýcý kaydýný veritabanýna iþleyen fonksiyon
     function registerDeviceUser(keyType) {
         try {
             let users = JSON.parse(localStorage.getItem(USERS_DB_KEY)) || [];
             const currentFid = getDeviceFingerprint();
-            
             if (!users.includes(currentFid)) {
                 users.push(currentFid);
                 localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
@@ -1676,7 +1675,7 @@ document.addEventListener('DOMContentLoaded',init);
         getTotalUsersCount() {
             try {
                 const users = JSON.parse(localStorage.getItem(USERS_DB_KEY)) || [];
-                return Math.max(users.length, 1); // En az bu cihazý 1 sayar
+                return Math.max(users.length, 1);
             } catch(e) {
                 return 1;
             }
@@ -1696,23 +1695,22 @@ document.addEventListener('DOMContentLoaded',init);
                 };
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(activeData));
                 registerDeviceUser('full');
-                return { success: true, message: "Yönetici yetkisiyle tam sürüm etkinleþtirildi." };
+                return { success: true, message: "\u00d6zel Y\u00f6netici yetkisiyle tam s\u00fcr\u00fcm etkinleþtirildi." };
             }
 
             const parts = inputKey.split('-');
             if (parts.length !== 4 || parts[0] !== 'BEKARD') {
-                return { success: false, message: "Geçersiz anahtar formatý!" };
+                return { success: false, message: "Ge\u00e7ersiz anahtar format\u0131!" };
             }
 
             const typeCode = parts[1];
             const days = parseInt(parts[2]);
 
             if (isNaN(days) || (typeCode !== 'TAM' && typeCode !== 'DEMO')) {
-                return { success: false, message: "Geçersiz anahtar bileþenleri!" };
+                return { success: false, message: "Ge\u00e7ersiz anahtar bileþenleri!" };
             }
 
             const licenseType = typeCode === 'TAM' ? 'full' : 'demo';
-            
             const now = new Date();
             const expiryDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
 
@@ -1731,13 +1729,13 @@ document.addEventListener('DOMContentLoaded',init);
 
         generateKey(type, durationDays, adminPass) {
             if (adminPass !== ADMIN_PASS) {
-                return { success: false, message: "Hatalý Yönetici Þifresi!" };
+                return { success: false, message: "Hatal\u0131 Y\u00f6netici \u015eifresi!" };
             }
             const randomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
             const prefix = type === 'full' ? 'TAM' : 'DEMO';
             const uniqueKey = `BEKARD-${prefix}-${durationDays}-${randomCode}`;
             
-            return { success: true, key: uniqueKey, message: "Anahtar baþarýyla üretildi!" };
+            return { success: true, key: uniqueKey, message: "Anahtar ba\u015far\u0131yla \u00fcretildi!" };
         },
 
         CheckStatus() {
@@ -1747,7 +1745,7 @@ document.addEventListener('DOMContentLoaded',init);
 
                 const currentDevice = getDeviceFingerprint();
                 if (data.deviceFid && data.deviceFid !== currentDevice && data.key !== 'MASTER_ADMIN') {
-                    return { active: false, type: 'expired', message: 'Bu lisans anahtarý baþka bir cihaza kayýtlýdýr!' };
+                    return { active: false, type: 'expired', message: 'Bu lisans anahtar\u0131 ba\u015fka bir cihaza kay\u0131tl\u0131d\u0131r!' };
                 }
 
                 const now = new Date();
@@ -1756,19 +1754,17 @@ document.addEventListener('DOMContentLoaded',init);
 
                 if (now < lastKnown) {
                     localStorage.removeItem(LICENSE_STORAGE_KEY);
-                    return { active: false, type: 'expired', message: 'Sistem saatinde geriye dönük tutarsýzlýk tespit edildi. Lisans kilitlendi.' };
+                    return { active: false, type: 'expired', message: 'Sistem saatinde geriye d\u00f6n\u00fck tutars\u0131zl\u0131k tespit edildi.' };
                 }
 
                 data.lastKnownTime = now.toISOString();
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(data));
 
                 if (now > expires) {
-                    return { active: false, type: 'expired', message: 'Lisans süreniz dolmuþtur. Lütfen yeni anahtar girin.' };
+                    return { active: false, type: 'expired', message: 'Lisans s\u00fcreniz dolmu\u015ftur.' };
                 }
 
-                // Aktifken de kullanýcý kaydýný garantiye al
                 registerDeviceUser(data.type);
-
                 const diffTime = expires - now;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
@@ -1782,7 +1778,7 @@ document.addEventListener('DOMContentLoaded',init);
     window.addEventListener('DOMContentLoaded', () => {
         const status = BekardLicenseManager.CheckStatus();
         if (!status.active) {
-            createLockScreen(status.type === 'expired' ? status.message : 'Uygulamayý kullanmak için lütfen lisans anahtarýnýzý girin.');
+            createLockScreen(status.type === 'expired' ? status.message : 'Uygulamay\u0131 kullanmak i\u00e7in l\u00fctfen lisans anahtar\u0131n\u0131z\u0131 girin.');
         } else {
             injectStatusBadge(status.remainingDays);
         }
@@ -1797,20 +1793,20 @@ document.addEventListener('DOMContentLoaded',init);
         overlay.innerHTML = `
             <div style="background: #1e293b; border: 1px solid #334155; padding: 35px; border-radius: 18px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); color: #f8fafc; text-align: center;">
                 <div style="width: 55px; height: 55px; background: #2563eb; border-radius: 14px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px;">???</div>
-                <h2 style="font-size: 17px; font-weight: bold; margin-bottom: 6px;">MEB ÝSG Puantaj Sistemi</h2>
-                <p style="font-size: 11px; color: #94a3b8; margin-bottom: 20px;">Bekard v2026 Lisans Korumalý Mimari</p>
+                <h2 style="font-size: 17px; font-weight: bold; margin-bottom: 6px;">MEB \u0130SG Puantaj Sistemi</h2>
+                <p style="font-size: 11px; color: #94a3b8; margin-bottom: 20px;">Bekard v2026 Lisans Korumal\u0131 Mimari</p>
                 
                 <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); padding: 10px; border-radius: 8px; font-size: 11px; color: #93c5fd; margin-bottom: 15px;">
                     ${warningText}
                 </div>
 
-                <input type="text" id="bekardInputKey" placeholder="BEKARD-... ANAHTARINIZI GÝRÝN" style="width: 100%; padding: 11px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; font-size: 12px; margin-bottom: 12px; outline: none; text-align: center; text-transform: uppercase; font-family: monospace; letter-spacing: 1px;">
+                <input type="text" id="bekardInputKey" placeholder="BEKARD-... ANAHTARINIZI G\u0130R\u0130N" style="width: 100%; padding: 11px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; font-size: 12px; margin-bottom: 12px; outline: none; text-align: center; text-transform: uppercase; font-family: monospace; letter-spacing: 1px;">
                 
-                <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 11px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: background 0.2s;">Sistemi Baþlat</button>
+                <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 11px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer;">Sistemi Ba\u015flat</button>
                 
                 <div style="margin-top: 20px; border-top: 1px solid #334155; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 10px; color: #64748b;">Yetkili Giriþi:</span>
-                    <button id="bekardOpenAdminModal" style="background: none; border: none; color: #60a5fa; font-size: 10px; cursor: pointer; text-decoration: underline;">Yönetici Paneli</button>
+                    <span style="font-size: 10px; color: #64748b;">Yetkili Giri\u015fi:</span>
+                    <button id="bekardOpenAdminModal" style="background: none; border: none; color: #60a5fa; font-size: 10px; cursor: pointer; text-decoration: underline;">Y\u00f6netici Paneli</button>
                 </div>
             </div>
         `;
@@ -1839,7 +1835,7 @@ document.addEventListener('DOMContentLoaded',init);
 
         const badge = document.createElement('div');
         badge.style.cssText = "position: fixed; top: 10px; right: 15px; background: rgba(30, 41, 59, 0.9); border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #38bdf8; z-index: 9999; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(5px);";
-        badge.innerHTML = `<span>??? Lisans: ${remainingDays > 3000 ? 'Sýnýrsýz (Tam)' : remainingDays + ' Gün Kaldý'}</span>`;
+        badge.innerHTML = `<span>??? Lisans: ${remainingDays > 3000 ? 'S\u0131n\u0131rs\u0131z (Tam)' : remainingDays + ' G\u00fcn Kald\u0131'}</span>`;
         document.body.appendChild(badge);
     }
 
@@ -1850,7 +1846,7 @@ document.addEventListener('DOMContentLoaded',init);
         const wrapper = document.createElement('div');
         wrapper.style.cssText = "margin: 15px; padding: 10px; background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 10px; font-size: 11px; text-align: center;";
         wrapper.innerHTML = `
-            <button id="bekardAdminPanelBtn" style="width: 100%; padding: 6px; background: transparent; color: #64748b; border: 1px dashed #475569; border-radius: 6px; cursor: pointer; font-size: 10px;">Yönetici Paneli</button>
+            <button id="bekardAdminPanelBtn" style="width: 100%; padding: 6px; background: transparent; color: #64748b; border: 1px dashed #475569; border-radius: 6px; cursor: pointer; font-size: 10px;">Y\u00f6netici Paneli</button>
         `;
         sidebar.appendChild(wrapper);
 
@@ -1872,45 +1868,44 @@ document.addEventListener('DOMContentLoaded',init);
                 <button id="closeAdminModalTop" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; font-weight: bold;">?</button>
 
                 <div style="margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
-                    <h3 style="font-size: 14px; font-weight: bold; color: #60a5fa;">Yönetici Anahtar Üretim Paneli</h3>
+                    <h3 style="font-size: 14px; font-weight: bold; color: #60a5fa;">Y\u00f6netici Anahtar \u00dcretim Paneli</h3>
                 </div>
 
-                <!-- AKTÝF KULLANICI SAYACI GÖSTERGESÝ -->
                 <div style="background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(37, 99, 235, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-size: 11px; color: #93c5fd; font-weight: bold;">Aktif Kullanýcý Sayýsý:</span>
+                    <span style="font-size: 11px; color: #93c5fd; font-weight: bold;">Aktif Kullan\u0131c\u0131 Say\u0131s\u0131:</span>
                     <span style="font-size: 14px; color: #38bdf8; font-weight: bold; background: #0f172a; padding: 2px 10px; border-radius: 6px; border: 1px solid #334155;">${totalUsers} Cihaz</span>
                 </div>
 
                 <div style="margin-bottom: 12px;">
-                    <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Yönetici Þifresi</label>
+                    <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Y\u00f6netici \u015eifresi</label>
                     <input type="password" id="admPassInput" placeholder="Mcinar_2026..." style="width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px; outline: none;">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
                     <div>
-                        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Lisans Türü</label>
+                        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Lisans T\u00fcr\u00fc</label>
                         <select id="admKeyType" style="width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px;">
-                            <option value="demo">Demo Sürüm</option>
-                            <option value="full">Tam Sürüm</option>
+                            <option value="demo">Demo S\u00fcr\u00fcm</option>
+                            <option value="full">Tam S\u00fcr\u00fcm</option>
                         </select>
                     </div>
                     <div>
-                        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">Süre</label>
+                        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 4px;">S\u00fcre</label>
                         <select id="admDuration" style="width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px;">
-                            <option value="15">15 Gün</option>
-                            <option value="30">1 Ay (30 Gün)</option>
-                            <option value="365">1 Yýl (365 Gün)</option>
-                            <option value="730">2 Yýl (730 Gün)</option>
+                            <option value="15">15 G\u00fcn</option>
+                            <option value="30">1 Ay (30 G\u00fcn)</option>
+                            <option value="365">1 Y\u0131l (365 G\u00fcn)</option>
+                            <option value="730">2 Y\u0131l (730 G\u00fcn)</option>
                         </select>
                     </div>
                 </div>
 
-                <button id="admGenerateBtn" style="width: 100%; padding: 9px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-bottom: 15px;">Anahtar Üret</button>
+                <button id="admGenerateBtn" style="width: 100%; padding: 9px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-bottom: 15px;">Anahtar \u00dcret</button>
 
                 <div id="generatedKeyOutputBox" style="display: none; background: #0f172a; border: 1px solid #22c55e; border-radius: 6px; padding: 10px; text-align: center;">
-                    <div style="font-size: 10px; color: #22c55e; margin-bottom: 4px; font-weight: bold;">Üretilen Anahtar (Baþka Þehirdeki Kullanýcýya Verilecek):</div>
+                    <div style="font-size: 10px; color: #22c55e; margin-bottom: 4px; font-weight: bold;">\u00dcretilen Anahtar (Ba\u015fka \u015eehirdeki Kullan\u0131c\u0131ya Verilecek):</div>
                     <input type="text" id="outputKeyText" readonly style="width: 100%; background: transparent; border: none; color: #f8fafc; text-align: center; font-family: monospace; font-size: 13px; font-weight: bold; outline: none; margin-bottom: 6px;">
-                    <button id="copyKeyBtn" style="padding: 4px 12px; background: #22c55e; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;">Anahtarý Kopyala</button>
+                    <button id="copyKeyBtn" style="padding: 4px 12px; background: #22c55e; color: white; border: none; border-radius: 4px; font-size: 10px; cursor: pointer; font-weight: bold;">Anahtar\u0131 Kopyala</button>
                 </div>
             </div>
         `;
@@ -1945,9 +1940,9 @@ document.addEventListener('DOMContentLoaded',init);
             const textInput = document.getElementById('outputKeyText');
             textInput.select();
             navigator.clipboard.writeText(textInput.value);
-            alert("Anahtar panoya kopyalandý!");
+            alert("Anahtar panoya kopyaland\u0131!");
         });
     }
 })();
-</script>  </body>
+</script></body>
 </html>
