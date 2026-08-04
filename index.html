@@ -1943,5 +1943,43 @@ document.addEventListener('DOMContentLoaded',init);
         });
     }
 })();
+</script><!-- 
+  ================================================================================
+  BEKARD v2026 CANLI BULUT SAYAÇ MÝMARÝSÝ
+  ================================================================================
+-->
+<script>
+(function() {
+    // Ücretsiz bulut sayaç servisi üzerinden anlýk toplam ziyaretçi/kullanýcý sayýsýný çeker
+    const namespace = "bekard_isg_puantaj_2026";
+    const key = "live_users_count";
+
+    // Sayfa açýldýðýnda sayacý 1 artýr ve ekrana yansýt
+    fetch(`https://api.countapi.xyz/hit/${namespace}/${key}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.value) {
+                updateBadgeCount(data.value);
+            }
+        })
+        .catch(err => {
+            // Alternatif yedek sayaç okuma
+            fetch(`https://api.countapi.xyz/get/${namespace}/${key}`)
+                .then(res => res.json())
+                .then(d => { if (d && d.value) updateBadgeCount(d.value); })
+                .catch(e => {});
+        });
+
+    function updateBadgeCount(count) {
+        // Yönetici panelindeki sayaç kutusunu bulur ve günceller
+        const countElement = document.getElementById('liveUserCountDisplay');
+        if (countElement) {
+            countElement.innerText = count + " Cihaz";
+        }
+        
+        // Ana sayfada veya arayüzde görünmesi istenen ek yerler için global saklama
+        window.BekardLiveCount = count;
+    }
+})();
 </script></body>
 </html>
