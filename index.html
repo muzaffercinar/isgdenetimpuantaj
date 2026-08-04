@@ -1657,8 +1657,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026: Tam Korumalý (Anti-Reset) 7 Gün Deneme ve Lisans Mimarisi
+  BEKARD v2026: Anti-Time Travel, 7 Gün Deneme ve Yýl Bazlý Esnek Lisans Mimarisi
   ================================================================================
 -->
 <script>
@@ -1667,15 +1668,14 @@ document.addEventListener('DOMContentLoaded',init);
     const SELLER_WHATSAPP_NUMBER = "905551234567";
     const TRIAL_DAYS = 7;
 
-    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v12";
-    const HARDWARE_FINGERPRINT_KEY = "bekard_isg_hw_lock_v12";
+    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v14";
+    const HARDWARE_FINGERPRINT_KEY = "bekard_isg_hw_lock_v14";
+    const LAST_SEEN_DATE_KEY = "bekard_isg_last_seen_date_v14";
     const SECRET_SALT = "BEKARD_ISG_SECURE_2026_KEY";
 
-    // Geliþmiþ Donaným Parmak Ýzi (Tarayýcý hafýzasý silinse bile cihazý tanýr)
     function getHardwareFingerprint() {
         let hwId = localStorage.getItem(HARDWARE_FINGERPRINT_KEY);
         if (!hwId) {
-            // Cihazýn donanýmsal ve tarayýcý özelliklerini birleþtirerek benzersiz bir imza üretir
             const canvas = document.createElement('canvas');
             const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
             const debugInfo = gl ? gl.getExtension('WEBGL_debug_renderer_info') : null;
@@ -1683,7 +1683,6 @@ document.addEventListener('DOMContentLoaded',init);
             
             const rawSignature = `${navigator.hardwareConcurrency || 4}-${navigator.deviceMemory || 8}-${screen.width}x${screen.height}-${renderer}`;
             
-            // Basit bir hash üretimi
             let hash = 0;
             for (let i = 0; i < rawSignature.length; i++) {
                 hash = ((hash << 5) - hash) + rawSignature.charCodeAt(i);
@@ -1695,22 +1694,30 @@ document.addEventListener('DOMContentLoaded',init);
         return hwId;
     }
 
-    // Anti-Reset Deneme Süresi Kontrolü (Gizli Yedekli Alan)
     function getSecureTrialInfo() {
         const hwId = getHardwareFingerprint();
         const backupKey = `bekard_trial_backup_${hwId}`;
-        
-        let installStr = localStorage.getItem('bekard_install_date') || sessionStorage.getItem('bekard_install_date') || localStorage.getItem(backupKey);
+        const now = new Date();
+
+        let lastSeenStr = localStorage.getItem(LAST_SEEN_DATE_KEY);
+        if (lastSeenStr) {
+            let lastSeenDate = new Date(lastSeenStr);
+            if (now.getTime() < lastSeenDate.getTime()) {
+                localStorage.setItem(backupKey, new Date(now.getTime() - (TRIAL_DAYS * 24 * 60 * 60 * 1000)).toISOString());
+                return { isExpired: true, remaining: 0, tampered: true };
+            }
+        }
+        localStorage.setItem(LAST_SEEN_DATE_KEY, now.toISOString());
+
+        let installStr = localStorage.getItem('bekard_install_date') || localStorage.getItem(backupKey);
         
         if (!installStr) {
-            installStr = new Date().toISOString();
+            installStr = now.toISOString();
             localStorage.setItem('bekard_install_date', installStr);
-            sessionStorage.setItem('bekard_install_date', installStr);
-            localStorage.setItem(backupKey, installStr); // Temizlense bile baþka bir yerde saklanýr
+            localStorage.setItem(backupKey, installStr);
         }
         
         const installDate = new Date(installStr);
-        const now = new Date();
         const diffMs = now.getTime() - installDate.getTime();
         const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
         
@@ -1718,20 +1725,25 @@ document.addEventListener('DOMContentLoaded',init);
         
         return {
             isExpired: remainingDays <= 0,
-            remaining: remainingDays > 0 ? remainingDays : 0
+            remaining: remainingDays > 0 ? remainingDays : 0,
+            tampered: false
         };
     }
 
-    window.BekardAdminGenerateKey = function(targetDeviceId) {
+    // Yýl parametreli lisans anahtarý üretici (1, 2, 3 yýl veya daha fazla destekler)
+    window.BekardAdminGenerateKey = function(targetDeviceId, years = 1) {
         targetDeviceId = targetDeviceId.trim().toUpperCase();
-        let str = targetDeviceId + SECRET_SALT;
+        years = parseInt(years) || 1;
+        
+        // Süreyi hash algoritmasýna dahil ediyoruz ki farklý yýllar için farklý anahtar üretilsin
+        let str = targetDeviceId + "_" + years + "YEARS_" + SECRET_SALT;
         let hash = 0;
         for (let i = 0; i < str.length; i++) {
             hash = ((hash << 5) - hash) + str.charCodeAt(i);
             hash |= 0;
         }
         let hex = Math.abs(hash).toString(16).toUpperCase().padStart(4, '0');
-        return `BKRD-${targetDeviceId}-${hex}`;
+        return `BKRD-${targetDeviceId}-${years}Y-${hex}`;
     };
 
     function validateDeviceSignedKey(inputKey) {
@@ -1739,21 +1751,24 @@ document.addEventListener('DOMContentLoaded',init);
         const currentDevice = getHardwareFingerprint();
 
         const parts = inputKey.split('-');
-        if (parts.length < 3 || parts[0] !== 'BKRD') {
+        if (parts.length < 4 || parts[0] !== 'BKRD') {
             return { valid: false, message: "Geçersiz lisans anahtarý formatý!" };
         }
 
         let embeddedDevice = parts[1];
+        let yearPart = parts[2]; // Örn: 1Y, 2Y, 3Y
+        let years = parseInt(yearPart) || 1;
+
         if (embeddedDevice !== currentDevice) {
-            return { valid: false, message: "Bu lisans anahtarý BAÞKA BÝR BÝLGÝSAYARA aittir! Güvenlik ihlali." };
+            return { valid: false, message: "Bu lisans anahtarý baþka bir cihaza aittir! Güvenlik ihlali." };
         }
 
-        let expectedKey = window.BekardAdminGenerateKey(currentDevice);
+        let expectedKey = window.BekardAdminGenerateKey(currentDevice, years);
         if (inputKey !== expectedKey) {
             return { valid: false, message: "Geçersiz veya hatalý lisans anahtarý!" };
         }
 
-        return { valid: true, message: "Lisans bu cihaza baþarýyla mühürlendi!" };
+        return { valid: true, years: years, message: `${years} yýllýk lisans bu cihaza baþarýyla mühürlendi!` };
     }
 
     window.BekardLicenseManager = {
@@ -1766,10 +1781,14 @@ document.addEventListener('DOMContentLoaded',init);
 
             const check = validateDeviceSignedKey(inputKey);
             if (check.valid) {
-                const expiryDate = new Date(new Date().getTime() + (365 * 24 * 60 * 60 * 1000));
+                // Kaç yýllýk lisans verildiyse o kadar gün ekle (365 * yýl)
+                const totalDays = 365 * check.years;
+                const expiryDate = new Date(new Date().getTime() + (totalDays * 24 * 60 * 60 * 1000));
+                
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify({
                     type: 'full',
                     key: inputKey,
+                    years: check.years,
                     expiresAt: expiryDate.toISOString()
                 }));
                 return { success: true, message: check.message };
@@ -1780,20 +1799,25 @@ document.addEventListener('DOMContentLoaded',init);
         CheckStatus() {
             try {
                 const data = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY));
-                if (data && data.key === 'ADMIN') return { status: 'licensed', isLocked: false };
+                if (data && data.key === 'ADMIN') return { status: 'licensed', isLocked: false, text: 'Yönetici Modu' };
                 if (data && data.key.includes(getHardwareFingerprint())) {
                     const now = new Date();
                     const expires = new Date(data.expiresAt);
-                    if (now <= expires) return { status: 'licensed', isLocked: false };
+                    if (now <= expires) {
+                        return { status: 'licensed', isLocked: false, text: `${data.years || 1} Yýllýk Lisanslý` };
+                    }
                 }
                 
                 const trial = getSecureTrialInfo();
+                if (trial.tampered) {
+                    return { status: 'tampered', isLocked: true, message: 'Sistem saatinin geriye alýndýðý tespit edildi! Deneme süreniz iptal edilmiþtir.' };
+                }
                 if (!trial.isExpired) {
-                    return { status: 'trial', isLocked: false, remainingDays: trial.remaining };
+                    return { status: 'trial', isLocked: false, remainingDays: trial.remaining, text: `Deneme Sürümü (${trial.remaining} Gün)` };
                 }
 
-                return { status: 'expired', isLocked: true, message: '7 Günlük deneme süreniz dolmuþtur.' };
-            } catch(e) { return { status: 'error', isLocked: true }; }
+                return { status: 'expired', isLocked: true, message: '7 günlük deneme süreniz sonaermiþtir.' };
+            } catch(e) { return { status: 'error', isLocked: true, message: 'Sistem güvenlik hatasý.' }; }
         }
     };
 
@@ -1803,7 +1827,7 @@ document.addEventListener('DOMContentLoaded',init);
         if (check.isLocked) {
             createLockScreen(check.message || 'Sistemi kullanmak için lütfen lisans kodunuzu girin.');
         } else {
-            injectStatusBadge(check.status, check.remainingDays);
+            injectStatusBadge(check.status, check.text || check.remainingDays);
             injectAdminMenuIntegration();
         }
         
@@ -1825,7 +1849,7 @@ document.addEventListener('DOMContentLoaded',init);
 
     function createLockScreen(warningText) {
         const myDeviceID = getHardwareFingerprint();
-        const whatsappMessage = encodeURIComponent(`Merhaba, BEKARD ÝSG deneme sürem doldu, lisans almak istiyorum. Cihaz ID'm: ${myDeviceID}`);
+        const whatsappMessage = encodeURIComponent(`Merhaba, BEKARD ÝSG kilitlendi, lisans almak istiyorum. Cihaz ID'm: ${myDeviceID}`);
         const whatsappLink = `https://wa.me/${SELLER_WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
         const overlay = document.createElement('div');
@@ -1834,9 +1858,9 @@ document.addEventListener('DOMContentLoaded',init);
         
         overlay.innerHTML = `
             <div style="background: #1e293b; border: 1px solid #334155; padding: 40px; border-radius: 18px; width: 100%; max-width: 400px; text-align: center; color: white; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);">
-                <div style="width: 60px; height: 60px; background: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px auto;">??</div>
-                <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Deneme Süresi Doldu</h2>
-                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 25px; line-height: 1.5;">7 günlük ücretsiz kullaným süreniz sona ermiþtir. Sistemi kullanmaya devam etmek için lütfen lisans anahtarý edinin.</p>
+                <div style="width: 60px; height: 60px; background: #ef4444; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin: 0 auto 20px auto;">???</div>
+                <h2 style="font-size: 20px; font-weight: bold; margin-bottom: 8px;">Sistem Kilitlendi</h2>
+                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 25px; line-height: 1.5;">${warningText}</p>
                 
                 <div style="background: #0f172a; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed #475569;">
                     <div style="font-size: 11px; color: #94a3b8; margin-bottom: 5px;">CÝHAZ KÝMLÝÐÝNÝZ:</div>
@@ -1847,7 +1871,7 @@ document.addEventListener('DOMContentLoaded',init);
                     ?? WhatsApp'tan Lisans Al
                 </a>
                 
-                <input type="text" id="bekardInputKey" placeholder="Lisans Þifrenizi Buraya Girin" style="width: 100%; padding: 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #38bdf8; font-size: 15px; margin-bottom: 15px; text-align: center; font-family: monospace; text-transform: uppercase;">
+                <input type="text" id="bekardInputKey" placeholder="Lisans Anahtarýnýzý Girin" style="width: 100%; padding: 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #38bdf8; font-size: 15px; margin-bottom: 15px; text-align: center; font-family: monospace; text-transform: uppercase;">
                 <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 15px;">Kilidi Aç</button>
                 
                 <div style="margin-top: 25px; text-align: right;">
@@ -1876,16 +1900,15 @@ document.addEventListener('DOMContentLoaded',init);
         document.getElementById('bekardOpenAdminLock').addEventListener('click', openAdminPanel);
     }
 
-    function injectStatusBadge(status, remainingDays) {
+    function injectStatusBadge(status, displayText) {
         const sidebarNav = document.querySelector('aside nav') || document.querySelector('aside') || document.querySelector('.sidebar') || document.body;
         const badgeContainer = document.createElement('div');
         
         let badgeColor = status === 'licensed' ? '#10b981' : '#f59e0b';
         let badgeBg = status === 'licensed' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(245, 158, 11, 0.1)';
-        let badgeText = status === 'licensed' ? 'Sýnýrsýz Lisans' : `Deneme Sürümü (${remainingDays} Gün)`;
 
         badgeContainer.style.cssText = `margin-top: 10px; padding: 10px 14px; background: ${badgeBg}; border: 1px solid ${badgeColor}40; border-radius: 8px; font-size: 11px; display: flex; align-items: center; justify-content: space-between; font-family: system-ui, sans-serif;`;
-        badgeContainer.innerHTML = `<span style="color: #94a3b8; font-size: 10px; text-transform: uppercase;">Durum</span><span style="font-weight: 600; color: ${badgeColor};">${badgeText}</span>`;
+        badgeContainer.innerHTML = `<span style="color: #94a3b8; font-size: 10px; text-transform: uppercase;">Durum</span><span style="font-weight: 600; color: ${badgeColor};">${displayText}</span>`;
         
         sidebarNav.appendChild(badgeContainer);
     }
@@ -1899,8 +1922,8 @@ document.addEventListener('DOMContentLoaded',init);
         container.style.cssText = "margin-top: auto; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); font-family: system-ui, sans-serif; display: flex; flex-direction: column; gap: 8px;";
         
         const btnAdminGen = document.createElement('button');
-        btnAdminGen.innerHTML = `?? Þifre Üreticiyi Aç`;
-        btnAdminGen.style.cssText = "width: 100%; display: flex; align-items: context; justify-content: center; background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer;";
+        btnAdminGen.innerHTML = `?? Lisans / Süre Üretici`;
+        btnAdminGen.style.cssText = "width: 100%; display: flex; align-items: center; justify-content: center; background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer;";
         btnAdminGen.addEventListener('click', openAdminPanel);
 
         container.appendChild(btnAdminGen);
@@ -1908,14 +1931,17 @@ document.addEventListener('DOMContentLoaded',init);
     }
 
     function openAdminPanel() {
-        const pass = prompt("Yönetici Þifresi:");
-        if (pass !== ADMIN_PASS) return alert("Hatalý!");
+        const pass = prompt("Yönetici Þifrenizi Girin:");
+        if (pass !== ADMIN_PASS) return alert("Hatalý yönetici þifresi!");
         
         const targetId = prompt("Müþterinin Cihaz ID'si (Örn: HW-XXXX):");
         if (!targetId) return;
 
-        const generatedKey = window.BekardAdminGenerateKey(targetId);
-        prompt(`Müþteri Þifresi (Kopyalayýp Gönderin):`, generatedKey);
+        const yearsInput = prompt("Kaç Yýllýk Lisans Üretilsin? (Örn: 1, 2 veya 3):", "1");
+        if (!yearsInput) return;
+
+        const generatedKey = window.BekardAdminGenerateKey(targetId, yearsInput);
+        prompt(`${yearsInput} Yýllýk Müþteri Lisans Anahtarý (Kopyalayýp Gönderin):`, generatedKey);
     }
 })();
 </script></body>
