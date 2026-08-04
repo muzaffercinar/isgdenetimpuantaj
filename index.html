@@ -1631,14 +1631,14 @@ document.addEventListener('DOMContentLoaded',init);
 <!-- 
 <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 MERKEZÝ LÝSANS VE YÖNETÝCÝ DOÐRULAMA MÝMARÝSÝ
-  Patent: 2026/003199 | Yönetici Yetkilendirme Sistemi
+  BEKARD v2026 MERKEZÝ LÝSANS, GÜVENLÝK VE AKTÝF KULLANICI SAYACI MÝMARÝSÝ
+  Patent: 2026/003199 | Yetki: Yetkilendirilmiþ Yönetici
   ================================================================================
 -->
 <script>
 (function() {
-    // Karakter kodlamasý güvencesi
     let metaCharset = document.querySelector('meta[charset]');
     if (!metaCharset) {
         metaCharset = document.createElement('meta');
@@ -1647,33 +1647,65 @@ document.addEventListener('DOMContentLoaded',init);
     }
 
     const ADMIN_PASS = "Mcinar_2026";
-    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v2";
+    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v4";
+    const USERS_DB_KEY = "bekard_registered_users_db";
+
+    function getDeviceFingerprint() {
+        let fid = localStorage.getItem("bekard_device_fid");
+        if (!fid) {
+            fid = 'DEV-' + Math.random().toString(36).substring(2, 10) + '-' + Date.now();
+            localStorage.setItem("bekard_device_fid", fid);
+        }
+        return fid;
+    }
+
+    // Aktif kullanýcý kaydýný veritabanýna iþleyen fonksiyon
+    function registerDeviceUser(keyType) {
+        try {
+            let users = JSON.parse(localStorage.getItem(USERS_DB_KEY)) || [];
+            const currentFid = getDeviceFingerprint();
+            
+            if (!users.includes(currentFid)) {
+                users.push(currentFid);
+                localStorage.setItem(USERS_DB_KEY, JSON.stringify(users));
+            }
+        } catch(e) {}
+    }
 
     window.BekardLicenseManager = {
-        // Anahtar yapýsýný matematiksel olarak çözer ve baþka þehirdeki kullanýcýda da doðrular
+        getTotalUsersCount() {
+            try {
+                const users = JSON.parse(localStorage.getItem(USERS_DB_KEY)) || [];
+                return Math.max(users.length, 1); // En az bu cihazý 1 sayar
+            } catch(e) {
+                return 1;
+            }
+        },
+
         verifyAndActivate(inputKey) {
             inputKey = inputKey.trim();
+            const currentDevice = getDeviceFingerprint();
             
-            // Eðer doðrudan Master Yönetici Þifresi girilirse (Sýnýrsýz Tam Sürüm)
             if (inputKey === ADMIN_PASS) {
                 const activeData = {
                     type: 'full',
                     key: 'MASTER_ADMIN',
-                    expiresAt: new Date(new Date().getTime() + 365 * 10 * 24 * 60 * 60 * 1000).toISOString()
+                    deviceFid: currentDevice,
+                    expiresAt: new Date(new Date().getTime() + 365 * 10 * 24 * 60 * 60 * 1000).toISOString(),
+                    lastKnownTime: new Date().toISOString()
                 };
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(activeData));
+                registerDeviceUser('full');
                 return { success: true, message: "Yönetici yetkisiyle tam sürüm etkinleþtirildi." };
             }
 
-            // Üretilen anahtar formatý: BEKARD-[TUR]-[GUN SAYISI]-[RASTGELE KOD]
-            // Örnek: BEKARD-TAM-365-X9Y2Z
             const parts = inputKey.split('-');
             if (parts.length !== 4 || parts[0] !== 'BEKARD') {
                 return { success: false, message: "Geçersiz anahtar formatý!" };
             }
 
-            const typeCode = parts[1]; // TAM veya DEMO
-            const days = parseInt(parts[2]); // Gün sayýsý
+            const typeCode = parts[1];
+            const days = parseInt(parts[2]);
 
             if (isNaN(days) || (typeCode !== 'TAM' && typeCode !== 'DEMO')) {
                 return { success: false, message: "Geçersiz anahtar bileþenleri!" };
@@ -1681,21 +1713,22 @@ document.addEventListener('DOMContentLoaded',init);
 
             const licenseType = typeCode === 'TAM' ? 'full' : 'demo';
             
-            // Süre hesaplama
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + days);
+            const now = new Date();
+            const expiryDate = new Date(now.getTime() + (days * 24 * 60 * 60 * 1000));
 
             const activeData = {
                 type: licenseType,
                 key: inputKey,
-                expiresAt: expiryDate.toISOString()
+                deviceFid: currentDevice,
+                expiresAt: expiryDate.toISOString(),
+                lastKnownTime: now.toISOString()
             };
 
             localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(activeData));
+            registerDeviceUser(licenseType);
             return { success: true, message: `${days} günlük lisans baþarýyla etkinleþtirildi!` };
         },
 
-        // Yönetici þifresiyle yeni anahtar üretir (Bu anahtar her yerde geçerlidir)
         generateKey(type, durationDays, adminPass) {
             if (adminPass !== ADMIN_PASS) {
                 return { success: false, message: "Hatalý Yönetici Þifresi!" };
@@ -1712,23 +1745,46 @@ document.addEventListener('DOMContentLoaded',init);
                 const data = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY));
                 if (!data) return { active: false, type: 'none' };
 
+                const currentDevice = getDeviceFingerprint();
+                if (data.deviceFid && data.deviceFid !== currentDevice && data.key !== 'MASTER_ADMIN') {
+                    return { active: false, type: 'expired', message: 'Bu lisans anahtarý baþka bir cihaza kayýtlýdýr!' };
+                }
+
                 const now = new Date();
                 const expires = new Date(data.expiresAt);
+                const lastKnown = data.lastKnownTime ? new Date(data.lastKnownTime) : now;
+
+                if (now < lastKnown) {
+                    localStorage.removeItem(LICENSE_STORAGE_KEY);
+                    return { active: false, type: 'expired', message: 'Sistem saatinde geriye dönük tutarsýzlýk tespit edildi. Lisans kilitlendi.' };
+                }
+
+                data.lastKnownTime = now.toISOString();
+                localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(data));
+
                 if (now > expires) {
                     return { active: false, type: 'expired', message: 'Lisans süreniz dolmuþtur. Lütfen yeni anahtar girin.' };
                 }
-                return { active: true, type: data.type, expiresAt: data.expiresAt };
+
+                // Aktifken de kullanýcý kaydýný garantiye al
+                registerDeviceUser(data.type);
+
+                const diffTime = expires - now;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                return { active: true, type: data.type, expiresAt: data.expiresAt, remainingDays: diffDays };
             } catch(e) {
                 return { active: false, type: 'none' };
             }
         }
     };
 
-    // Ýlk açýlýþta direkt ekrana kilidi getir
     window.addEventListener('DOMContentLoaded', () => {
         const status = BekardLicenseManager.CheckStatus();
         if (!status.active) {
             createLockScreen(status.type === 'expired' ? status.message : 'Uygulamayý kullanmak için lütfen lisans anahtarýnýzý girin.');
+        } else {
+            injectStatusBadge(status.remainingDays);
         }
         injectAdminTrigger();
     });
@@ -1754,7 +1810,7 @@ document.addEventListener('DOMContentLoaded',init);
                 
                 <div style="margin-top: 20px; border-top: 1px solid #334155; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="font-size: 10px; color: #64748b;">Yetkili Giriþi:</span>
-                    <button id="bekardOpenAdminModal" style="background: none; border: none; color: #60a5fa; font-size: 10px; cursor: pointer; text-decoration: underline;">Yönetici Paneli (Þifreli)</button>
+                    <button id="bekardOpenAdminModal" style="background: none; border: none; color: #60a5fa; font-size: 10px; cursor: pointer; text-decoration: underline;">Yönetici Paneli</button>
                 </div>
             </div>
         `;
@@ -1777,6 +1833,16 @@ document.addEventListener('DOMContentLoaded',init);
         });
     }
 
+    function injectStatusBadge(remainingDays) {
+        const header = document.querySelector('header') || document.body;
+        if (!header) return;
+
+        const badge = document.createElement('div');
+        badge.style.cssText = "position: fixed; top: 10px; right: 15px; background: rgba(30, 41, 59, 0.9); border: 1px solid #334155; padding: 6px 12px; border-radius: 20px; font-size: 11px; color: #38bdf8; z-index: 9999; display: flex; align-items: center; gap: 6px; backdrop-filter: blur(5px);";
+        badge.innerHTML = `<span>??? Lisans: ${remainingDays > 3000 ? 'Sýnýrsýz (Tam)' : remainingDays + ' Gün Kaldý'}</span>`;
+        document.body.appendChild(badge);
+    }
+
     function injectAdminTrigger() {
         const sidebar = document.querySelector('aside nav') || document.querySelector('aside');
         if (!sidebar) return;
@@ -1795,15 +1861,24 @@ document.addEventListener('DOMContentLoaded',init);
         const existing = document.getElementById('bekard-admin-modal');
         if (existing) existing.remove();
 
+        const totalUsers = BekardLicenseManager.getTotalUsersCount();
+
         const modal = document.createElement('div');
         modal.id = "bekard-admin-modal";
         modal.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 999999; display: flex; align-items: center; justify-content: center; font-family: system-ui, sans-serif;";
         
         modal.innerHTML = `
-            <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 450px; color: #f8fafc;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
+            <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 450px; color: #f8fafc; position: relative;">
+                <button id="closeAdminModalTop" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: #94a3b8; font-size: 18px; cursor: pointer; font-weight: bold;">?</button>
+
+                <div style="margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
                     <h3 style="font-size: 14px; font-weight: bold; color: #60a5fa;">Yönetici Anahtar Üretim Paneli</h3>
-                    <button id="closeAdminModal" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer;">?</button>
+                </div>
+
+                <!-- AKTÝF KULLANICI SAYACI GÖSTERGESÝ -->
+                <div style="background: rgba(37, 99, 235, 0.15); border: 1px solid rgba(37, 99, 235, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 11px; color: #93c5fd; font-weight: bold;">Aktif Kullanýcý Sayýsý:</span>
+                    <span style="font-size: 14px; color: #38bdf8; font-weight: bold; background: #0f172a; padding: 2px 10px; border-radius: 6px; border: 1px solid #334155;">${totalUsers} Cihaz</span>
                 </div>
 
                 <div style="margin-bottom: 12px;">
@@ -1841,10 +1916,14 @@ document.addEventListener('DOMContentLoaded',init);
         `;
         document.body.appendChild(modal);
 
-        document.getElementById('closeAdminModal').addEventListener('click', () => {
+        const closeModal = () => {
             modal.remove();
-            location.reload();
-        });
+            if (!BekardLicenseManager.CheckStatus().active) {
+                location.reload();
+            }
+        };
+
+        document.getElementById('closeAdminModalTop').addEventListener('click', closeModal);
 
         document.getElementById('admGenerateBtn').addEventListener('click', () => {
             const pass = document.getElementById('admPassInput').value;
@@ -1866,7 +1945,7 @@ document.addEventListener('DOMContentLoaded',init);
             const textInput = document.getElementById('outputKeyText');
             textInput.select();
             navigator.clipboard.writeText(textInput.value);
-            alert("Anahtar panoya kopyalandý! Bu anahtarý ilgili kiþiye gönderebilirsiniz.");
+            alert("Anahtar panoya kopyalandý!");
         });
     }
 })();
