@@ -4,10 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MEB İSG Hizmet ve Puantaj Yönetim Sistemi</title>
+    <meta name="description" content="İzmir İl/İlçe MEM İSG Büro Hizmet ve Puantaj Yönetim Sistemi">
+    
+    <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Tailwind CSS & Plugins -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -16,24 +21,45 @@
                 extend: {
                     fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
                     colors: {
-                        meb: { primary: '#1e3a5f', 'primary-light': '#2c5282', 'primary-dark': '#152a45', accent: '#d4a017', 'accent-light': '#e6b422', 'accent-dark': '#b8900f' }
+                        meb: {
+                            primary: '#1e3a5f',
+                            'primary-light': '#2c5282',
+                            'primary-dark': '#152a45',
+                            accent: '#d4a017',
+                            'accent-light': '#e6b422',
+                            'accent-dark': '#b8900f'
+                        }
                     }
                 }
             }
         }
     </script>
+    
+    <!-- PDF & Excel Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Inter', system-ui, sans-serif; }
-        .sidebar { transition: transform 0.3s ease; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 3px; }
+        .sidebar { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
         .glass-card { background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); border: 1px solid rgba(229,231,235,0.5); }
         .dark .glass-card { background: rgba(30,41,59,0.85); border: 1px solid rgba(51,65,85,0.5); }
         .gradient-primary { background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 100%); }
+        .nav-item.active { background: rgba(212,160,23,0.15); border-left: 4px solid #d4a017; color: #d4a017; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white; color: black; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200 min-h-screen">
 
-<!-- LİSANS / DEMO KİLİT MODALI -->
+<!-- ==================== LİSANS KİLİT MODALI ==================== -->
 <div id="licenseLockOverlay" class="fixed inset-0 z-[10000] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
     <div class="max-w-md w-full bg-slate-900 border border-slate-700/80 rounded-2xl p-6 shadow-2xl text-center relative overflow-hidden">
         <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 flex items-center justify-center mx-auto mb-4 text-2xl font-black shadow-lg shadow-amber-500/20">
@@ -44,12 +70,17 @@
         
         <div class="space-y-4">
             <div>
-                <input type="text" id="licenseKeyInput" placeholder="XXXX-XXXX-XXXX" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center font-mono text-base tracking-widest text-amber-400 focus:border-amber-500 focus:outline-none uppercase transition">
+                <input type="text" id="licenseKeyInput" placeholder="DEMO-0001-XXXX" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-center font-mono text-base tracking-widest text-amber-400 focus:border-amber-500 focus:outline-none uppercase transition">
             </div>
             <button onclick="verifyLicenseKey()" class="w-full py-3.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl transition shadow-lg shadow-amber-500/10 active:scale-[0.98]">Sistemi Etkinleştir</button>
         </div>
 
-        <!-- Hata ve Bilgi Mesajları -->
+        <div class="mt-4">
+            <button onclick="downloadKeysTXT()" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold rounded-xl border border-slate-700 transition flex items-center justify-center gap-2">
+                <i class="fas fa-file-arrow-down"></i> Tüm Lisans Anahtarlarını İndir (TXT)
+            </button>
+        </div>
+
         <div id="licenseError" class="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-400 hidden flex items-center gap-2 text-left">
             <i class="fas fa-circle-exclamation text-base shrink-0"></i>
             <span id="licenseErrorText"></span>
@@ -62,44 +93,228 @@
     </div>
 </div>
 
-<!-- UYGULAMA İÇERİĞİ -->
-<div id="appContainer" class="p-6 max-w-7xl mx-auto">
-    <div class="glass-card p-6 rounded-2xl shadow-xl flex items-center justify-between">
-        <div>
-            <h1 class="text-2xl font-bold text-meb-primary dark:text-amber-400">MEB İSG Hizmet & Puantaj Yönetim Sistemi</h1>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1" id="activeLicenseInfo">Lisans Durumu: Kontrol Ediliyor...</p>
+<!-- ==================== HEADER ==================== -->
+<header class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 sticky top-0 z-40 lg:ml-72 transition-all no-print">
+    <div class="px-6 py-3 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <button onclick="toggleSidebar()" class="lg:hidden p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg"><i class="fas fa-bars"></i></button>
+            <span id="activeLicenseBadge" class="px-3 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-full text-xs font-semibold border border-amber-500/20">Lisans Kontrol Ediliyor...</span>
         </div>
-        <div class="flex gap-2">
-            <button onclick="downloadKeysTXT()" class="px-4 py-2 bg-slate-800 text-amber-400 text-xs font-semibold rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2">
-                <i class="fas fa-file-arrow-down"></i> Anahtar Listelerini İndir (TXT)
+        <div class="flex items-center gap-3">
+            <button onclick="downloadKeysTXT()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-800 text-amber-400 text-xs font-medium rounded-lg hover:bg-slate-700 transition">
+                <i class="fas fa-key"></i> Lisansları İndir (TXT)
             </button>
-            <button onclick="resetLicense()" class="px-3 py-2 bg-red-600/20 text-red-400 hover:bg-red-600/30 text-xs font-semibold rounded-lg border border-red-500/30 transition">
-                Lisansı Sıfırla
+            <button onclick="resetLicense()" class="px-3 py-1.5 bg-red-500/10 text-red-600 dark:text-red-400 text-xs font-medium rounded-lg hover:bg-red-500/20 transition">
+                Çıkış Yap / Lisans Sıfırla
             </button>
+        </div>
+    </div>
+</header>
+
+<!-- ==================== SIDEBAR ==================== -->
+<aside id="sidebar" class="sidebar fixed top-0 left-0 h-full w-72 gradient-primary text-white z-50 flex flex-col shadow-2xl lg:translate-x-0 -translate-x-full no-print">
+    <div class="p-5 border-b border-white/10 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center font-black text-slate-900 text-xl shadow-lg">İSG</div>
+        <div>
+            <h1 class="font-bold text-base leading-tight">MEB İSG Hizmet</h1>
+            <p class="text-xs text-white/60">Saha & Puantaj Paneli</p>
+        </div>
+    </div>
+    <nav class="flex-1 py-4 overflow-y-auto">
+        <ul class="space-y-1 px-3">
+            <li><button onclick="showSection('schools')" id="nav-schools" class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-white/10 transition">
+                <i class="fas fa-school text-amber-400"></i> <span class="font-semibold text-sm">Okul Yönetimi</span>
+            </button></li>
+            <li><button onclick="showSection('timesheet')" id="nav-timesheet" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-white/10 transition">
+                <i class="fas fa-clock text-green-400"></i> <span class="font-semibold text-sm">Puantaj & Hizmet</span>
+            </button></li>
+            <li><button onclick="showSection('audit')" id="nav-audit" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left hover:bg-white/10 transition">
+                <i class="fas fa-clipboard-check text-blue-400"></i> <span class="font-semibold text-sm">Denetim & Rehberlik (100 Foto)</span>
+            </button></li>
+        </ul>
+    </nav>
+</aside>
+
+<!-- ==================== ANA İÇERİK ==================== -->
+<main class="lg:ml-72 p-4 md:p-8">
+
+    <!-- 1. OKUL YÖNETİMİ MODÜLÜ -->
+    <div id="section-schools" class="section-content">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-meb-primary dark:text-white"><i class="fas fa-school mr-2"></i>Okul & Kurum Listesi</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">İlçe genelindeki okulları tanımlayın ve hizmet sürelerini yönetin.</p>
+            </div>
+            <button onclick="openSchoolModal()" class="px-4 py-2.5 bg-meb-primary hover:bg-meb-primary-light text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+                <i class="fas fa-plus"></i> Yeni Okul Ekle
+            </button>
+        </div>
+
+        <div class="glass-card rounded-2xl overflow-hidden shadow-xl border border-gray-200 dark:border-slate-800">
+            <div class="p-4 border-b border-gray-200 dark:border-slate-800 flex gap-4">
+                <input type="text" id="schoolSearch" onkeyup="renderSchools()" placeholder="Okul adı veya kurum kodu ile ara..." class="w-full px-4 py-2 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none">
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-100 dark:bg-slate-800/80 text-gray-600 dark:text-slate-400 uppercase font-semibold">
+                        <tr>
+                            <th class="p-4">Kurum Kodu</th>
+                            <th class="p-4">Okul / Kurum Adı</th>
+                            <th class="p-4">Tehlike Sınıfı</th>
+                            <th class="p-4">Çalışan Sayısı</th>
+                            <th class="p-4 text-right">İşlemler</th>
+                        </tr>
+                    </thead>
+                    <tbody id="schoolTableBody" class="divide-y divide-gray-200 dark:divide-slate-800">
+                        <!-- JavaScript ile Dolacak -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. PUANTAJ VE HİZMET MODÜLÜ -->
+    <div id="section-timesheet" class="section-content hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-meb-primary dark:text-white"><i class="fas fa-clock mr-2"></i>Aylık İSG Puantaj Cetveli</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Okul ziyaret saatleri ve hizmet süreleri takip paneli.</p>
+            </div>
+            <div class="flex gap-2">
+                <button onclick="exportToExcel()" class="px-3 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-500 transition"><i class="fas fa-file-excel mr-1"></i> Excel İndir</button>
+            </div>
+        </div>
+
+        <div class="glass-card p-6 rounded-2xl shadow-xl">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Dönem Seçin</label>
+                    <input type="month" id="timesheetMonth" value="2026-08" onchange="renderTimesheet()" class="w-full p-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Okul Seçin</label>
+                    <select id="timesheetSchoolSelect" onchange="renderTimesheet()" class="w-full p-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs">
+                        <!-- JS Dolacak -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Ziyaret Süresi (Saat)</label>
+                    <input type="number" id="visitHours" value="4" class="w-full p-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs">
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-center text-xs border-collapse border border-gray-200 dark:border-slate-800">
+                    <thead class="bg-gray-100 dark:bg-slate-800">
+                        <tr>
+                            <th class="p-3 border border-gray-200 dark:border-slate-700">Gün</th>
+                            <th class="p-3 border border-gray-200 dark:border-slate-700">Tarih</th>
+                            <th class="p-3 border border-gray-200 dark:border-slate-700">Hizmet Türü</th>
+                            <th class="p-3 border border-gray-200 dark:border-slate-700">Tamamlanan Saat</th>
+                        </tr>
+                    </thead>
+                    <tbody id="timesheetTableBody">
+                        <!-- JS Dolacak -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. DENETİM VE REHBERLİK FORM MODÜLÜ (100 FOTOĞRAF DESTEKLİ) -->
+    <div id="section-audit" class="section-content hidden">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-meb-primary dark:text-white"><i class="fas fa-clipboard-check mr-2"></i>Denetim & Rehberlik Raporu</h2>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Saha tespitleri ve 100 adete kadar fotoğraf yükleme alanı.</p>
+            </div>
+            <button onclick="downloadAuditPDF()" class="px-4 py-2.5 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center gap-2">
+                <i class="fas fa-file-pdf"></i> PDF Rapor Oluştur
+            </button>
+        </div>
+
+        <div id="auditReportPrintArea" class="glass-card p-6 rounded-2xl shadow-xl space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Denetim Yapılan Okul</label>
+                    <input type="text" id="auditSchoolName" placeholder="Okul adını yazın..." class="w-full p-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold mb-1">Denetim Tarihi</label>
+                    <input type="date" id="auditDate" class="w-full p-2.5 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold mb-1">Saha Tespitleri & Uygunsuzluklar</label>
+                <textarea id="auditNotes" rows="4" placeholder="Okulda tespit edilen İSG eksikliklerini ve önerileri yazın..." class="w-full p-3 bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-xs"></textarea>
+            </div>
+
+            <!-- 100 FOTOĞRAF YÜKLEME ALANI -->
+            <div class="border-t border-gray-200 dark:border-slate-800 pt-4">
+                <div class="flex justify-between items-center mb-3">
+                    <label class="text-xs font-bold text-amber-500"><i class="fas fa-camera mr-1"></i> Saha Fotoğrafları (Maksimum 100 Adet)</label>
+                    <span id="photoCountBadge" class="text-xs text-gray-500">0 / 100 Fotoğraf</span>
+                </div>
+                
+                <input type="file" id="auditPhotoInput" multiple accept="image/*" onchange="handlePhotoUpload(event)" class="hidden">
+                <button onclick="document.getElementById('auditPhotoInput').click()" class="w-full py-4 border-2 border-dashed border-gray-300 dark:border-slate-700 hover:border-amber-500 rounded-2xl text-xs font-semibold text-gray-500 dark:text-gray-400 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-cloud-arrow-up text-lg text-amber-500"></i> Toplu Fotoğraf Yükle (PC / Mobil)
+                </button>
+
+                <div id="photoGallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mt-4">
+                    <!-- Yüklenen fotoğraflar buraya eklenecek -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<!-- OKUL EKLEME MODALI -->
+<div id="schoolModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+        <h3 class="text-lg font-bold mb-4">Yeni Okul / Kurum Ekle</h3>
+        <div class="space-y-3">
+            <input type="text" id="modalSchoolCode" placeholder="Kurum Kodu" class="w-full p-2.5 border dark:border-slate-700 rounded-xl text-xs dark:bg-slate-800">
+            <input type="text" id="modalSchoolName" placeholder="Okul / Kurum Tam Adı" class="w-full p-2.5 border dark:border-slate-700 rounded-xl text-xs dark:bg-slate-800">
+            <select id="modalDangerClass" class="w-full p-2.5 border dark:border-slate-700 rounded-xl text-xs dark:bg-slate-800">
+                <option value="Az Tehlikeli">Az Tehlikeli</option>
+                <option value="Tehlikeli">Tehlikeli</option>
+                <option value="Çok Tehlikeli">Çok Tehlikeli</option>
+            </select>
+            <input type="number" id="modalEmployeeCount" placeholder="Çalışan Sayısı" class="w-full p-2.5 border dark:border-slate-700 rounded-xl text-xs dark:bg-slate-800">
+        </div>
+        <div class="flex justify-end gap-2 mt-6">
+            <button onclick="closeSchoolModal()" class="px-4 py-2 bg-gray-200 dark:bg-slate-800 text-xs font-semibold rounded-xl">İptal</button>
+            <button onclick="saveSchool()" class="px-4 py-2 bg-amber-500 text-slate-950 text-xs font-bold rounded-xl">Kaydet</button>
         </div>
     </div>
 </div>
 
 <script>
     // =========================================================================
-    // LİSANS VERİTABANI OLUŞTURUCU (500 DEMO + 1000 TAM SÜRÜM)
+    // 1500 SABİT LİSANS MOTORU (500 DEMO + 1000 TAM SÜRÜM)
     // =========================================================================
-    
+    function pseudoRandom(seed) {
+        var x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    }
+
     function generateKey(prefix, index) {
         const pad = String(index).padStart(4, '0');
-        const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let rand = '';
+        let seed = (prefix === 'DEMO' ? 1000 : 5000) + index;
+        for(let i = 0; i < 4; i++) {
+            rand += chars.charAt(Math.floor(pseudoRandom(seed + i) * chars.length));
+        }
         return `${prefix}-${pad}-${rand}`;
     }
 
-    // 500 Demo Anahtarı Üret (DEMO-XXXX-YYYY)
     const DEMO_KEYS = Array.from({ length: 500 }, (_, i) => generateKey('DEMO', i + 1));
-    
-    // 1000 Tam Sürüm Anahtarı Üret (FULL-XXXX-YYYY)
     const FULL_KEYS = Array.from({ length: 1000 }, (_, i) => generateKey('FULL', i + 1));
 
-    // =========================================================================
-    // CİHAZ KİMLİĞİ (FINGERPRINT)
-    // =========================================================================
     function getDeviceId() {
         let devId = localStorage.getItem('isg_device_id');
         if (!devId) {
@@ -109,24 +324,12 @@
         return devId;
     }
 
-    // global demo kullanım kaydı simülasyonu
-    function getDemoRegistry() {
-        return JSON.parse(localStorage.getItem('isg_demo_global_registry') || '{}');
-    }
-
-    function setDemoRegistry(registry) {
-        localStorage.setItem('isg_demo_global_registry', JSON.stringify(registry));
-    }
-
-    // =========================================================================
-    // LİSANS DOĞRULAMA MOTORU
-    // =========================================================================
     function checkLicenseStatus() {
         const activeLicense = JSON.parse(localStorage.getItem('isg_active_license') || 'null');
         const overlay = document.getElementById('licenseLockOverlay');
         const errBox = document.getElementById('licenseError');
         const errText = document.getElementById('licenseErrorText');
-        const infoText = document.getElementById('activeLicenseInfo');
+        const badge = document.getElementById('activeLicenseBadge');
 
         if (!activeLicense) {
             overlay.classList.remove('hidden');
@@ -136,17 +339,14 @@
         const now = Date.now();
         const currentDevice = getDeviceId();
 
-        // 1. DEMO KONTROLÜ
         if (activeLicense.type === 'DEMO') {
-            // Cihaz Kilit Kontrolü
             if (activeLicense.deviceId !== currentDevice) {
                 overlay.classList.remove('hidden');
                 errBox.classList.remove('hidden');
-                errText.innerHTML = "Bu demo anahtarı başka bir cihazda zaten aktif edilmiş!<br><b>Lütfen Tam Sürüm Lisans Anahtarı edinin.</b>";
+                errText.innerHTML = "Bu demo anahtarı başka bir cihazda kullanılmıştır!<br><b>Lütfen Tam Sürüm Lisans Anahtarı edinin.</b>";
                 return;
             }
 
-            // 15 Günlük Süre Kontrolü
             const daysLeft = Math.ceil((activeLicense.expiresAt - now) / (1000 * 60 * 60 * 24));
             if (now > activeLicense.expiresAt) {
                 overlay.classList.remove('hidden');
@@ -156,11 +356,8 @@
             }
 
             overlay.classList.add('hidden');
-            infoText.innerHTML = `<span class="text-amber-500 font-semibold">Demo Sürüm</span> (Kalan Süre: ${daysLeft} Gün - Cihaza Özel)`;
-        } 
-        
-        // 2. TAM SÜRÜM KONTROLÜ
-        else if (activeLicense.type === 'FULL') {
+            badge.textContent = `Demo Sürüm (Kalan: ${daysLeft} Gün)`;
+        } else if (activeLicense.type === 'FULL') {
             const daysLeft = Math.ceil((activeLicense.expiresAt - now) / (1000 * 60 * 60 * 24));
             if (now > activeLicense.expiresAt) {
                 overlay.classList.remove('hidden');
@@ -170,7 +367,8 @@
             }
 
             overlay.classList.add('hidden');
-            infoText.innerHTML = `<span class="text-green-500 font-semibold">Tam Sürüm (1 Yıllık Lisans)</span> - Kalan Süre: ${daysLeft} Gün`;
+            badge.textContent = `Tam Sürüm Lisanslı (Kalan: ${daysLeft} Gün)`;
+            badge.className = "px-3 py-1 bg-green-500/10 text-green-600 dark:text-green-400 rounded-full text-xs font-semibold border border-green-500/20";
         }
     }
 
@@ -190,27 +388,24 @@
         const now = Date.now();
         const currentDevice = getDeviceId();
 
-        // DEMO ANAHTAR KONTROLÜ
         if (DEMO_KEYS.includes(inputKey)) {
-            const registry = getDemoRegistry();
+            const registry = JSON.parse(localStorage.getItem('isg_demo_global_registry') || '{}');
 
-            // Eğer bu demo anahtarı başka cihaz tarafından kullanılmışsa
             if (registry[inputKey] && registry[inputKey] !== currentDevice) {
-                errText.innerHTML = "Bu demo şifresi başka bir cihazda zaten kullanılmıştır!<br><b>LÜTFEN TAM SÜRÜM LİSANS ANAHTARI EDİNİN.</b>";
+                errText.innerHTML = "Bu demo şifresi başka bir cihazda aktif edilmiştir!<br><b>LÜTFEN TAM SÜRÜM LİSANS ANAHTARI EDİNİN.</b>";
                 errBox.classList.remove('hidden');
                 return;
             }
 
-            // İlk aktivasyon: Cihaza kilitle ve 15 gün başlat
             registry[inputKey] = currentDevice;
-            setDemoRegistry(registry);
+            localStorage.setItem('isg_demo_global_registry', JSON.stringify(registry));
 
             const demoData = {
                 key: inputKey,
                 type: 'DEMO',
                 deviceId: currentDevice,
                 activatedAt: now,
-                expiresAt: now + (15 * 24 * 60 * 60 * 1000) // 15 Gün
+                expiresAt: now + (15 * 24 * 60 * 60 * 1000)
             };
 
             localStorage.setItem('isg_active_license', JSON.stringify(demoData));
@@ -218,13 +413,12 @@
             return;
         }
 
-        // TAM SÜRÜM ANAHTAR KONTROLÜ
         if (FULL_KEYS.includes(inputKey)) {
             const fullData = {
                 key: inputKey,
                 type: 'FULL',
                 activatedAt: now,
-                expiresAt: now + (365 * 24 * 60 * 60 * 1000) // 1 Yıl (365 Gün)
+                expiresAt: now + (365 * 24 * 60 * 60 * 1000)
             };
 
             localStorage.setItem('isg_active_license', JSON.stringify(fullData));
@@ -232,19 +426,17 @@
             return;
         }
 
-        // GEÇERSİZ ANAHTAR
-        errText.textContent = "Girdiğiniz lisans anahtarı geçersizdir. Lütfen kontrol edip tekrar deneyiniz.";
+        errText.textContent = "Girdiğiniz lisans anahtarı geçersizdir. Lütfen TXT listesinden kontrol ediniz.";
         errBox.classList.remove('hidden');
     }
 
     function resetLicense() {
-        if(confirm("Mevcut lisans bilgileriniz silinecek ve kilit ekranı açılacaktır. Onaylıyor musunuz?")) {
+        if(confirm("Mevcut lisans bilgileriniz silinecektir. Onaylıyor musunuz?")) {
             localStorage.removeItem('isg_active_license');
             location.reload();
         }
     }
 
-    // TXT DOSYASI OLARAK İNDİRME
     function downloadKeysTXT() {
         const textContent = `=== MEB İSG SİSTEMİ LİSANS ANAHTARLARI ===\n\n` +
             `--- 500 ADET DEMO LİSANS ANAHTARI (15 Günlük & Tek Cihaz Kilitli) ---\n` +
@@ -259,9 +451,150 @@
         a.click();
     }
 
-    // Sayfa Yüklendiğinde Otomatik Çalıştır
+    // =========================================================================
+    // UYGULAMA MODÜL MANTIĞI & VERİ YÖNETİMİ
+    // =========================================================================
+    let schools = JSON.parse(localStorage.getItem('isg_schools') || '[{"code":"752101","name":"Atatürk İlkokulu","danger":"Az Tehlikeli","employees":24},{"code":"752102","name":"Menderes Anadolu Lisesi","danger":"Az Tehlikeli","employees":42}]');
+    let auditPhotos = [];
+
+    function saveSchoolsToStorage() {
+        localStorage.setItem('isg_schools', JSON.stringify(schools));
+    }
+
+    function renderSchools() {
+        const query = document.getElementById('schoolSearch').value.toLowerCase();
+        const tbody = document.getElementById('schoolTableBody');
+        tbody.innerHTML = '';
+
+        const filtered = schools.filter(s => s.name.toLowerCase().includes(query) || s.code.includes(query));
+        
+        filtered.forEach((s, idx) => {
+            tbody.innerHTML += `
+                <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition">
+                    <td class="p-4 font-mono font-semibold text-amber-500">${s.code}</td>
+                    <td class="p-4 font-bold text-gray-800 dark:text-gray-100">${s.name}</td>
+                    <td class="p-4"><span class="px-2 py-1 bg-blue-500/10 text-blue-500 rounded-md text-[10px] font-bold">${s.danger}</span></td>
+                    <td class="p-4 font-semibold">${s.employees} Personel</td>
+                    <td class="p-4 text-right">
+                        <button onclick="deleteSchool(${idx})" class="text-red-500 hover:text-red-700 p-1"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        // Puantaj Okul Seçim Menüsünü Güncelle
+        const select = document.getElementById('timesheetSchoolSelect');
+        select.innerHTML = schools.map(s => `<option value="${s.code}">${s.name}</option>`).join('');
+    }
+
+    function openSchoolModal() { document.getElementById('schoolModal').classList.remove('hidden'); }
+    function closeSchoolModal() { document.getElementById('schoolModal').classList.add('hidden'); }
+
+    function saveSchool() {
+        const code = document.getElementById('modalSchoolCode').value;
+        const name = document.getElementById('modalSchoolName').value;
+        const danger = document.getElementById('modalDangerClass').value;
+        const employees = document.getElementById('modalEmployeeCount').value;
+
+        if(!code || !name) return alert('Lütfen kurum kodu ve adını giriniz.');
+
+        schools.push({ code, name, danger, employees });
+        saveSchoolsToStorage();
+        renderSchools();
+        closeSchoolModal();
+    }
+
+    function deleteSchool(idx) {
+        if(confirm('Bu okulu silmek istediğinize emin misiniz?')) {
+            schools.splice(idx, 1);
+            saveSchoolsToStorage();
+            renderSchools();
+        }
+    }
+
+    function renderTimesheet() {
+        const tbody = document.getElementById('timesheetTableBody');
+        tbody.innerHTML = '';
+        const daysInMonth = 30; // Örnek olarak 30 gün doldurur
+
+        for(let i = 1; i <= daysInMonth; i++) {
+            const isWeekend = (i % 7 === 6 || i % 7 === 0);
+            tbody.innerHTML += `
+                <tr class="${isWeekend ? 'bg-gray-100 dark:bg-slate-800/40 opacity-60' : ''}">
+                    <td class="p-2 border border-gray-200 dark:border-slate-800 font-bold">${i}</td>
+                    <td class="p-2 border border-gray-200 dark:border-slate-800">${i}.08.2026</td>
+                    <td class="p-2 border border-gray-200 dark:border-slate-800">${isWeekend ? 'Hafta Sonu Tatili' : 'Saha Denetimi & Rehberlik'}</td>
+                    <td class="p-2 border border-gray-200 dark:border-slate-800 font-bold ${isWeekend ? '' : 'text-green-500'}">${isWeekend ? '0' : '4 Saat'}</td>
+                </tr>
+            `;
+        }
+    }
+
+    // 100 FOTOĞRAF YÜKLEME SİSTEMİ
+    function handlePhotoUpload(e) {
+        const files = Array.from(e.target.files);
+        if(auditPhotos.length + files.length > 100) {
+            alert('En fazla 100 adet fotoğraf yükleyebilirsiniz!');
+            return;
+        }
+
+        files.forEach(file => {
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                auditPhotos.push(evt.target.result);
+                renderGallery();
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function renderGallery() {
+        const gallery = document.getElementById('photoGallery');
+        gallery.innerHTML = '';
+        document.getElementById('photoCountBadge').textContent = `${auditPhotos.length} / 100 Fotoğraf`;
+
+        auditPhotos.forEach((src, idx) => {
+            gallery.innerHTML += `
+                <div class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-slate-700 aspect-square">
+                    <img src="${src}" class="w-full h-full object-cover">
+                    <button onclick="removePhoto(${idx})" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center opacity-80 hover:opacity-100 transition"><i class="fas fa-times"></i></button>
+                </div>
+            `;
+        });
+    }
+
+    function removePhoto(idx) {
+        auditPhotos.splice(idx, 1);
+        renderGallery();
+    }
+
+    function downloadAuditPDF() {
+        const element = document.getElementById('auditReportPrintArea');
+        html2pdf().from(element).save('ISG_Denetim_Raporu.pdf');
+    }
+
+    function exportToExcel() {
+        const table = document.getElementById('timesheetTableBody');
+        const wb = XLSX.utils.table_to_book(table);
+        XLSX.writeFile(wb, 'ISG_Puantaj_Cetveli.xlsx');
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(`section-${id}`).classList.remove('hidden');
+        document.getElementById(`nav-${id}`).classList.add('active');
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('-translate-x-full');
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
         checkLicenseStatus();
+        renderSchools();
+        renderTimesheet();
     });
 </script>
 </body>
