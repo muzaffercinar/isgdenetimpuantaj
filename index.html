@@ -1654,8 +1654,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Arayuz Kod Entegrasyonu)
+  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (ISKUR-TYP Karakter Duzenlemesi)
   ================================================================================
 -->
 <script>
@@ -1765,22 +1766,36 @@ document.addEventListener('DOMContentLoaded',init);
             injectAdminMenuIntegration();
         }
         
-        // Arayuz uzerindeki MEB Ýsg ifadelerini otomatik olarak BEKARD ÝSG ile degistirir
-        setTimeout(replaceMebTitles, 300);
+        // Arayuz uzerindeki MEB Ýsg ve ÝSKUR-TYP ifadelerini duzeltir
+        setTimeout(fixTextContent, 300);
     });
 
-    function replaceMebTitles() {
+    function fixTextContent() {
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
         let node;
         while (node = walker.nextNode()) {
-            if (node.nodeValue && /MEB\s*[ÝÝiI]sg/i.test(node.nodeValue)) {
-                node.nodeValue = node.nodeValue.replace(/MEB\s*[ÝÝiI]sg/gi, "BEKARD ÝSG");
+            if (node.nodeValue) {
+                let val = node.nodeValue;
+                if (/MEB\s*[ÝÝiI]sg/i.test(val)) {
+                    val = val.replace(/MEB\s*[ÝÝiI]sg/gi, "BEKARD ÝSG");
+                }
+                if (/[ÝI]SKUR\s*-\s*TYP/i.test(val)) {
+                    val = val.replace(/[ÝI]SKUR\s*-\s*TYP/gi, "ÝÞKUR-TYP");
+                }
+                node.nodeValue = val;
             }
         }
         
-        document.querySelectorAll('h1, h2, h3, h4, title, .brand, .logo, span, div, a').forEach(el => {
-            if (el.children.length === 0 && el.innerText && /MEB\s*[ÝÝiI]sg/i.test(el.innerText)) {
-                el.innerText = el.innerText.replace(/MEB\s*[ÝÝiI]sg/gi, "BEKARD ÝSG");
+        document.querySelectorAll('h1, h2, h3, h4, title, .brand, .logo, span, div, a, th, td').forEach(el => {
+            if (el.children.length === 0 && el.innerText) {
+                let txt = el.innerText;
+                if (/MEB\s*[ÝÝiI]sg/i.test(txt)) {
+                    txt = txt.replace(/MEB\s*[ÝÝiI]sg/gi, "BEKARD ÝSG");
+                }
+                if (/[ÝI]SKUR\s*-\s*TYP/i.test(txt)) {
+                    txt = txt.replace(/[ÝI]SKUR\s*-\s*TYP/gi, "ÝÞKUR-TYP");
+                }
+                el.innerText = txt;
             }
         });
     }
