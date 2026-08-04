@@ -1641,8 +1641,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Cihaza Kilitli Lisans Mimarisi (Stabil Parça Doðrulama)
+  BEKARD v2026 Cihaza Kilitli Lisans Mimarisi (Kurumsal Sürüm)
   Patent: 2026/003199 | Yetki: Yetkilendirilmis Yonetici
   ================================================================================
 -->
@@ -1655,7 +1656,6 @@ document.addEventListener('DOMContentLoaded',init);
     function getDeviceFingerprint() {
         let fid = localStorage.getItem("bekard_device_fid");
         if (!fid) {
-            // Tire içermeyen güvenli cihaz kimliði üretilir
             fid = 'DEV' + Math.random().toString(36).substring(2, 10) + '' + Date.now();
             localStorage.setItem("bekard_device_fid", fid);
         }
@@ -1701,7 +1701,6 @@ document.addEventListener('DOMContentLoaded',init);
             }
 
             const parts = inputKey.split('-');
-            // BEKARD - TÜR - SÜRE - CÝHAZ_KÝMLÝÐÝ - RASTGELE (Toplam 5 parça olmalýdýr)
             if (parts.length !== 5 || parts[0] !== 'BEKARD') {
                 return { success: false, message: "Gecersiz anahtar formati!" };
             }
@@ -1742,7 +1741,6 @@ document.addEventListener('DOMContentLoaded',init);
             }
             const randomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
             const prefix = type === 'full' ? 'TAM' : 'DEMO';
-            // Cihaz kimliðindeki tüm tire iþaretleri temizlenerek tek parça haline getirilir
             const currentDevice = getDeviceFingerprint().replace(/-/g, '');
             const uniqueKey = `BEKARD-${prefix}-${durationDays}-${currentDevice}-${randomCode}`;
             
@@ -1794,7 +1792,7 @@ document.addEventListener('DOMContentLoaded',init);
         overlay.innerHTML = `
             <div style="background: #1e293b; border: 1px solid #334155; padding: 35px; border-radius: 18px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6); color: #f8fafc; text-align: center;">
                 <div style="width: 55px; height: 55px; background: #2563eb; border-radius: 14px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 24px;">???</div>
-                <h2 style="font-size: 17px; font-weight: bold; margin-bottom: 6px;">MEB ISG Puantaj Sistemi</h2>
+                <h2 style="font-size: 17px; font-weight: bold; margin-bottom: 6px;">Kurumsal ISG Puantaj Sistemi</h2>
                 <p style="font-size: 11px; color: #94a3b8; margin-bottom: 20px;">Bekard v2026 Lisans Korumali Mimari</p>
                 <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); padding: 10px; border-radius: 8px; font-size: 11px; color: #93c5fd; margin-bottom: 15px;">
                     ${warningText}
