@@ -1629,30 +1629,35 @@ function init(){
 document.addEventListener('DOMContentLoaded',init);
 </script>
 <!-- 
+<!-- 
   ================================================================================
-  BEKARD v2026 GÝZLÝ YÖNETÝCÝ LÝSANS ÜRETME VE AKTÝVASYON SÝSTEMÝ
-  Patent: 2026/003199 | Yönetici Ana Þifre: Mcinar_2026
-  Mevcut index kodunuza hiç dokunmadan çalýþýr.
+  BEKARD v2026 GÝZLÝ YÖNETÝCÝ LÝSANS VE AKTÝVASYON SÝSTEMÝ
+  Patent: 2026/003199 | Yetki: Yetkilendirilmiþ Yönetici
   ================================================================================
 -->
 <script>
 (function() {
+    // Sayfa karakter kodlamasýnýn bozulmamasý için Meta Etiket Kontrolü
+    let metaCharset = document.querySelector('meta[charset]');
+    if (!metaCharset) {
+        metaCharset = document.createElement('meta');
+        metaCharset.setAttribute('charset', 'UTF-8');
+        document.head.prepend(metaCharset);
+    }
+
     const ADMIN_PASS = "Mcinar_2026";
     const LICENSE_STORAGE_KEY = "bekard_isg_license_active_data";
     const GENERATED_KEYS_DB = "bekard_isg_generated_keys_db";
 
-    // 1. Anahtar Doðrulama ve Üretme Motoru
     window.BekardLicenseManager = {
-        // Kayýtlý anahtarlarý getir
         getSavedKeys() {
             try {
                 return JSON.parse(localStorage.getItem(GENERATED_KEYS_DB)) || [];
             } catch(e) { return []; }
         },
-        // Yeni lisans / demo anahtarý üret (Yönetici yetkisi ile)
         generateKey(type, durationDays, adminPass) {
             if (adminPass !== ADMIN_PASS) {
-                return { success: false, message: "Hatalý Yönetici Þifresi (Mcinar_2026 gereklidir)!" };
+                return { success: false, message: "Geçersiz Yönetici Kimliði!" };
             }
             const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
             const prefix = type === 'full' ? 'TAM' : 'DEMO';
@@ -1660,10 +1665,9 @@ document.addEventListener('DOMContentLoaded',init);
             
             const keyData = {
                 key: uniqueKey,
-                type: type, // 'full' veya 'demo'
+                type: type,
                 durationDays: parseInt(durationDays),
-                createdAt: new Date().toISOString(),
-                used: false
+                createdAt: new Date().toISOString()
             };
 
             const keys = this.getSavedKeys();
@@ -1671,30 +1675,26 @@ document.addEventListener('DOMContentLoaded',init);
             localStorage.setItem(GENERATED_KEYS_DB, JSON.stringify(keys));
             return { success: true, key: uniqueKey, message: "Anahtar baþarýyla üretildi!" };
         },
-        // Kullanýcýnýn girdiði anahtarý kontrol et ve aktifleþtir
         activateWithKey(inputKey) {
             inputKey = inputKey.trim();
             const keys = this.getSavedKeys();
             
-            // Özel Master Þifre ile doðrudan sýnýrsýz tam sürüm yapabilme
             if (inputKey === ADMIN_PASS) {
                 const activeData = {
                     type: 'full',
-                    key: 'MASTER_ADMIN_KEY',
+                    key: 'ADMIN_MASTER_KEY',
                     expiresAt: new Date(new Date().getTime() + 365 * 10 * 24 * 60 * 60 * 1000).toISOString(),
                     activatedAt: new Date().toISOString()
                 };
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(activeData));
-                return { success: true, message: "Master Yönetici Anahtarý ile Tam Sürüm Etkinleþtirildi!" };
+                return { success: true, message: "Tam Sürüm Yetkilendirildi." };
             }
 
-            // Üretilen anahtarlar veritabanýnda aranýr
             const foundKey = keys.find(k => k.key === inputKey);
             if (!foundKey) {
-                return { success: false, message: "Geçersiz veya sistemde tanýmlý olmayan anahtar!" };
+                return { success: false, message: "Geçersiz anahtar!" };
             }
 
-            // Süre hesaplama (Gün cinsinden)
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + foundKey.durationDays);
 
@@ -1706,9 +1706,8 @@ document.addEventListener('DOMContentLoaded',init);
             };
 
             localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify(activeData));
-            return { success: true, message: `${foundKey.type === 'full' ? 'Tam Sürüm' : 'Demo Sürüm'} baþarýyla ${foundKey.durationDays} gün süreyle aktif edildi!` };
+            return { success: true, message: "Sistem baþarýyla etkinleþtirildi!" };
         },
-        // Mevcut lisans durumunu denetle
         CheckStatus() {
             try {
                 const data = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY));
@@ -1726,40 +1725,35 @@ document.addEventListener('DOMContentLoaded',init);
         }
     };
 
-    // 2. Kullanýcý Linke Týkladýðýnda Açýlan Karþýlama ve Lisans Giriþ Ekraný (Modal)
     window.addEventListener('DOMContentLoaded', () => {
         const status = BekardLicenseManager.CheckStatus();
-
-        // Eðer lisans aktif deðilse veya süresi dolmuþsa tam ekran kilit / lisans istem ekraný göster
         if (!status.active) {
-            createLockScreen(status.type === 'expired' ? status.message : 'Uygulamayý kullanmak için lütfen lisans veya demo anahtarýnýzý girin.');
+            createLockScreen(status.type === 'expired' ? status.message : 'Devam etmek için lütfen lisans anahtarýnýzý girin.');
         }
-
-        // Sol menüye veya uygun bir yere "Gizli Yönetici / Lisans Paneli" butonu enjekte et
         injectManagementButton();
     });
 
     function createLockScreen(warningText) {
         const overlay = document.createElement('div');
         overlay.id = "bekard-lock-overlay";
-        overlay.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.92); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); font-family: system-ui, sans-serif;";
+        overlay.style.cssText = "position: fixed; inset: 0; background: rgba(15, 23, 42, 0.95); z-index: 999999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(10px); font-family: system-ui, sans-serif;";
         
         overlay.innerHTML = `
-            <div style="background: #1e293b; border: 1px solid #334155; padding: 30px; border-radius: 16px; width: 100%; max-width: 420px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); color: #f8fafc; text-align: center;">
+            <div style="background: #1e293b; border: 1px solid #334155; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); color: #f8fafc; text-align: center;">
                 <div style="width: 50px; height: 50px; background: #2563eb; border-radius: 12px; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; font-size: 22px;">???</div>
-                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">MEB ÝSG Puantaj Sistemi</h2>
-                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 20px;">Bekard v2026 Lisans Korumalý Mimari (Patent: 2026/003199)</p>
+                <h2 style="font-size: 16px; font-weight: bold; margin-bottom: 6px;">MEB ÝSG Puantaj Sistemi</h2>
+                <p style="font-size: 11px; color: #94a3b8; margin-bottom: 20px;">Bekard v2026 Lisans Korumalý Mimari</p>
                 
-                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px; border-radius: 8px; font-size: 11px; color: #fca5a5; margin-bottom: 15px;">
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); padding: 10px; border-radius: 8px; font-size: 11px; color: #93c5fd; margin-bottom: 15px;">
                     ${warningText}
                 </div>
 
-                <input type="text" id="bekardInputKey" placeholder="Lisans veya Demo Anahtarýnýzý Girin..." style="width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; font-size: 13px; margin-bottom: 12px; outline: none; text-align: center; text-transform: uppercase;">
+                <input type="text" id="bekardInputKey" placeholder="Anahtarýnýzý Girin..." style="width: 100%; padding: 10px 14px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: white; font-size: 13px; margin-bottom: 12px; outline: none; text-align: center; text-transform: uppercase;">
                 
-                <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: background 0.2s;">Sistemi Etkinleþtir</button>
+                <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: background 0.2s;">Sistemi Baþlat</button>
                 
-                <div style="margin-top: 15px; border-top: 1px solid #334155; padding-top: 12px;">
-                    <button id="bekardOpenAdminModal" style="background: none; border: none; color: #60a5fa; font-size: 11px; cursor: pointer; text-decoration: underline;">Yönetici Giriþi (Anahtar Üret)</button>
+                <div style="margin-top: 20px; border-top: 1px solid #334155; padding-top: 12px;">
+                    <button id="bekardOpenAdminModal" style="background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer;">Yönetici Paneli</button>
                 </div>
             </div>
         `;
@@ -1769,7 +1763,6 @@ document.addEventListener('DOMContentLoaded',init);
             const val = document.getElementById('bekardInputKey').value;
             const res = BekardLicenseManager.activateWithKey(val);
             if (res.success) {
-                alert(res.message);
                 location.reload();
             } else {
                 alert(res.message);
@@ -1786,21 +1779,16 @@ document.addEventListener('DOMContentLoaded',init);
         const sidebar = document.querySelector('aside nav') || document.querySelector('aside');
         if (!sidebar) return;
 
-        const status = BekardLicenseManager.CheckStatus();
         const wrapper = document.createElement('div');
         wrapper.style.cssText = "margin: 15px; padding: 10px; background: rgba(30, 41, 59, 0.5); border: 1px solid #334155; border-radius: 10px; font-size: 11px; text-align: center;";
         wrapper.innerHTML = `
-            <div style="font-weight: bold; margin-bottom: 6px; color: ${status.active ? '#34d399' : '#fbbf24'};">
-                ${status.active ? '? Lisans Aktif (' + status.type.toUpperCase() + ')' : '? Lisans Gerekli'}
-            </div>
-            <button id="bekardAdminPanelBtn" style="width: 100%; padding: 6px; background: #475569; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Yönetici / Anahtar Paneli</button>
+            <button id="bekardAdminPanelBtn" style="width: 100%; padding: 6px; background: transparent; color: #64748b; border: 1px dashed #475569; border-radius: 6px; cursor: pointer; font-size: 10px;">Yönetim Giriþi</button>
         `;
         sidebar.appendChild(wrapper);
 
         document.getElementById('bekardAdminPanelBtn').addEventListener('click', openAdminPanel);
     }
 
-    // 3. Gizli Yönetici Lisans Üretme ve Yönetim Paneli Arayüzü
     function openAdminPanel() {
         const existing = document.getElementById('bekard-admin-modal');
         if (existing) existing.remove();
@@ -1812,15 +1800,15 @@ document.addEventListener('DOMContentLoaded',init);
         const keysList = BekardLicenseManager.getSavedKeys();
         
         modal.innerHTML = `
-            <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 550px; color: #f8fafc; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+            <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 500px; color: #f8fafc; max-height: 90vh; overflow-y: auto;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #334155; padding-bottom: 10px;">
-                    <h3 style="font-size: 15px; font-weight: bold; color: #60a5fa;">?? Bekard v2026 Gizli Yönetici Paneli</h3>
+                    <h3 style="font-size: 14px; font-weight: bold; color: #cbd5e1;">Yönetici Anahtar Üretim Paneli</h3>
                     <button id="closeAdminModal" style="background: none; border: none; color: #94a3b8; font-size: 16px; cursor: pointer;">?</button>
                 </div>
 
                 <div style="margin-bottom: 15px;">
-                    <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px;">Yönetici Þifresi (Mcinar_2026)</label>
-                    <input type="password" id="admPassInput" placeholder="Mcinar_2026" style="width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px; outline: none;">
+                    <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px;">Yönetici Þifresi</label>
+                    <input type="password" id="admPassInput" placeholder="Þifreniz..." style="width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px; outline: none;">
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
@@ -1832,28 +1820,28 @@ document.addEventListener('DOMContentLoaded',init);
                         </select>
                     </div>
                     <div>
-                        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px;">Süre (Gün)</label>
+                        <label style="font-size: 11px; color: #94a3b8; display: block; margin-bottom: 5px;">Süre</label>
                         <select id="admDuration" style="width: 100%; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px;">
-                            <option value="15">15 Gün (Demo)</option>
-                            <option value="30">1 Ay (Demo/Tam)</option>
-                            <option value="365">1 Yýl (Tam Sürüm)</option>
-                            <option value="730">2 Yýl (Tam Sürüm)</option>
+                            <option value="15">15 Gün</option>
+                            <option value="30">1 Ay</option>
+                            <option value="365">1 Yýl</option>
+                            <option value="730">2 Yýl</option>
                         </select>
                     </div>
                 </div>
 
-                <button id="admGenerateBtn" style="width: 100%; padding: 9px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-bottom: 20px;">Yeni Anahtar Üret</button>
+                <button id="admGenerateBtn" style="width: 100%; padding: 9px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; margin-bottom: 20px;">Anahtar Üret</button>
 
-                <h4 style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #cbd5e1;">Daha Önce Üretilen Anahtarlar:</h4>
-                <div style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; max-height: 150px; overflow-y: auto; padding: 8px; font-size: 11px;">
+                <h4 style="font-size: 11px; font-weight: bold; margin-bottom: 8px; color: #94a3b8;">Üretilen Anahtar Listesi:</h4>
+                <div style="background: #0f172a; border: 1px solid #334155; border-radius: 6px; max-height: 140px; overflow-y: auto; padding: 8px; font-size: 11px;">
                     ${keysList.length === 0 ? '<div style="color: #64748b; text-align: center; padding: 10px;">Henüz anahtar üretilmedi.</div>' : 
                         keysList.map(k => `
                             <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #1e293b;">
                                 <div>
                                     <span style="font-family: monospace; color: #38bdf8; font-weight: bold;">${k.key}</span>
-                                    <span style="color: #94a3b8; margin-left: 6px;">(${k.type.toUpperCase()} - ${k.durationDays} Gün)</span>
+                                    <span style="color: #94a3b8; margin-left: 6px;">(${k.durationDays} Gün)</span>
                                 </div>
-                                <button onclick="navigator.clipboard.writeText('${k.key}'); alert('Anahtar kopyalandý: ${k.key}');" style="background: #334155; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">Kopyala</button>
+                                <button onclick="navigator.clipboard.writeText('${k.key}'); alert('Kopyalandý: ${k.key}');" style="background: #334155; color: white; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 10px;">Kopyala</button>
                             </div>
                         `).join('')}
                 </div>
@@ -1875,7 +1863,7 @@ document.addEventListener('DOMContentLoaded',init);
             if (res.success) {
                 alert(`Anahtar Üretildi: ${res.key}`);
                 modal.remove();
-                openAdminPanel(); // Paneli tazele
+                openAdminPanel();
             } else {
                 alert(res.message);
             }
@@ -1883,5 +1871,5 @@ document.addEventListener('DOMContentLoaded',init);
     }
 })();
 </script>
-</body>
+  </body>
 </html>
