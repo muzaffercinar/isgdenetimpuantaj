@@ -1638,13 +1638,21 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 CÝHAZA KÝLÝTLÝ LÝSÝANS MÝMARÝSÝ
+  BEKARD v2026 CÝHAZA KÝLÝTLÝ LÝSANS MÝMARÝSÝ (DÜZGÜN KARAKTERLER)
   Patent: 2026/003199 | Yetki: Yetkilendirilmiþ Yönetici
   ================================================================================
 -->
 <script>
 (function() {
+    let metaCharset = document.querySelector('meta[charset]');
+    if (!metaCharset) {
+        metaCharset = document.createElement('meta');
+        metaCharset.setAttribute('charset', 'UTF-8');
+        document.head.prepend(metaCharset);
+    }
+
     const ADMIN_PASS = "Mcinar_2026";
     const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v5";
     const USERS_DB_KEY = "bekard_registered_users_db";
@@ -1701,18 +1709,17 @@ document.addEventListener('DOMContentLoaded',init);
                 return { success: false, message: "Geçersiz anahtar formatý!" };
             }
 
-            const typeCode = parts[1]; // TAM veya DEMO
+            const typeCode = parts[1];
             const days = parseInt(parts[2]);
-            const targetDeviceFid = parts[3]; // Anahtarýn üretildiði/kilitlendiði cihaz
+            const targetDeviceFid = parts[3];
             const randomCode = parts[4];
 
             if (isNaN(days) || (typeCode !== 'TAM' && typeCode !== 'DEMO')) {
                 return { success: false, message: "Geçersiz anahtar bileþenleri!" };
             }
 
-            // GÜVENLÝK KONTROLÜ: Anahtar baþka bir cihaza aitse kesinlikle reddet!
             if (targetDeviceFid !== currentDevice) {
-                return { success: false, message: "Bu anahtar baþka bir cihaza (baþka bir kullanýcýya) aittir, bu cihazda çalýþmaz!" };
+                return { success: false, message: "Bu anahtar baþka bir cihaza aittir, bu cihazda çalýþmaz!" };
             }
 
             const licenseType = typeCode === 'TAM' ? 'full' : 'demo';
@@ -1736,16 +1743,8 @@ document.addEventListener('DOMContentLoaded',init);
             if (adminPass !== ADMIN_PASS) {
                 return { success: false, message: "Hatalý Yönetici Þifresi!" };
             }
-            
-            // Anahtar üretilirken o anki yöneticinin cihaz ID'si veya genel bir kilit mekanizmasý eklenebilir. 
-            // Ancak anahtarýn baþka cihazda çalýþmamasý için, anahtarý giren ilk cihazýn parmak izine kilitlenmesi gerekir.
-            // Bunun için anahtara geçici bir kilit kodu koyuyoruz.
             const randomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
             const prefix = type === 'full' ? 'TAM' : 'DEMO';
-            
-            // NOT: Anahtarýn sadece alýcýnýn cihazýnda çalýþabilmesi için alýcý cihazýn ID'sini bilmek gerekir. 
-            // Eðer tek bir ortak anahtarýn baþka cihazda çalýþmasýný engellemek istiyorsanýz, 
-            // en pratik yol anahtarýn içine o cihazýn parmak izini gömmektir.
             const currentDevice = getDeviceFingerprint();
             const uniqueKey = `BEKARD-${prefix}-${durationDays}-${currentDevice}-${randomCode}`;
             
