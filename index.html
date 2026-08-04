@@ -1642,15 +1642,16 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Cihaza Kilitli Lisans Mimarisi (Kurumsal Sürüm)
+  BEKARD v2026 Cihaza Kilitli Lisans Mimarisi (Senkronize Kurumsal Sürüm)
   Patent: 2026/003199 | Yetki: Yetkilendirilmis Yonetici
   ================================================================================
 -->
 <script>
 (function() {
     const ADMIN_PASS = "Mcinar_2026";
-    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v6";
+    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v7";
     const USERS_DB_KEY = "bekard_registered_users_db";
 
     function getDeviceFingerprint() {
@@ -1659,7 +1660,8 @@ document.addEventListener('DOMContentLoaded',init);
             fid = 'DEV' + Math.random().toString(36).substring(2, 10) + '' + Date.now();
             localStorage.setItem("bekard_device_fid", fid);
         }
-        return fid;
+        // Tireleri temizleyerek standart formata getirir
+        return fid.replace(/-/g, '');
     }
 
     function registerDeviceUser() {
@@ -1741,7 +1743,7 @@ document.addEventListener('DOMContentLoaded',init);
             }
             const randomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
             const prefix = type === 'full' ? 'TAM' : 'DEMO';
-            const currentDevice = getDeviceFingerprint().replace(/-/g, '');
+            const currentDevice = getDeviceFingerprint();
             const uniqueKey = `BEKARD-${prefix}-${durationDays}-${currentDevice}-${randomCode}`;
             
             return { success: true, key: uniqueKey, message: "Anahtar bu cihaza ozel olarak uretildi!" };
