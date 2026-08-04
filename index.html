@@ -74,30 +74,6 @@
 </head>
 <body class="bg-gray-50 dark:bg-slate-900 text-gray-800 dark:text-gray-200 min-h-screen">
 
-<!-- ==================== LİSANS KİLİT EKRANI ==================== -->
-<div id="licenseOverlay" class="fixed inset-0 z-[99999] bg-slate-900/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
-    <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl max-w-md w-full text-center border border-gray-200 dark:border-slate-700">
-        <div class="w-16 h-16 bg-meb-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-shield-alt text-3xl text-meb-accent"></i>
-        </div>
-        <h2 class="text-2xl font-bold text-meb-primary dark:text-white mb-2">MEB İSG Lisans Doğrulama</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Uygulamayı bu cihazda çalıştırmak için lütfen size verilen tek kullanımlık lisans anahtarını giriniz.</p>
-        
-        <input type="text" id="licenseInput" placeholder="LİSANS ANAHTARI (Örn: FULL-...)" 
-               class="w-full px-4 py-3 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl text-center font-mono font-bold text-gray-800 dark:text-white mb-4 focus:border-meb-accent uppercase">
-               
-        <button onclick="verifyAndActivateLicense()" class="w-full bg-meb-primary hover:bg-meb-primary-light text-white font-bold py-3 rounded-xl transition shadow-lg mb-4">
-            Aktivasyonu Tamamla
-        </button>
-        
-        <p id="licenseError" class="text-red-500 text-xs font-semibold hidden bg-red-50 dark:bg-red-900/20 p-2 rounded-lg mb-2">Geçersiz, süresi dolmuş veya başka cihaza ait lisans anahtarı!</p>
-        
-        <div class="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700 text-[11px] text-gray-400">
-            Tek cihaz kilidi aktiftir. Anahtar başka bilgisayarda çalışmaz.
-        </div>
-    </div>
-</div>
-
 <!-- TOAST -->
 <div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-3 max-w-sm"></div>
 
@@ -159,7 +135,7 @@
     <div class="p-4 border-t border-white/10">
         <div class="text-[10px] text-white/40 text-center">
             <p>MEB İSG Yönetim Sistemi v2.0</p>
-            <div class="flex items-center justify-center gap-1 mt-1"><span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span><span>Lisanslı Sürüm</span></div>
+            <div class="flex items-center justify-center gap-1 mt-1"><span class="w-2 h-2 bg-green-400 rounded-full pulse-dot"></span><span>Yerel Depolama Aktif</span></div>
         </div>
     </div>
 </aside>
@@ -347,169 +323,1310 @@
     <!-- REHBERLİK FORMU -->
     <div id="auditTab-rehberlik" class="space-y-4 hidden">
         <div class="glass-card rounded-xl p-5">
-            <h3 class="font-bold text-base text-meb-primary dark:text-white mb-4"><i class="fas fa-hands-helping mr-2 text-meb-accent"></i>Rehberlik Ziyaret Dokümanı</h3>
-            <p class="text-sm text-gray-500">Rehberlik form alanı aktif içerikle çalışmaktadır.</p>
+            <h3 class="font-bold text-base text-meb-primary dark:text-white mb-4"><i class="fas fa-hands-helping mr-2 text-meb-accent"></i>Rehberlik Ziyaret Dökümanı</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Okul (Rehberlik)</label><select id="guidanceSchool" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></select></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Ziyaret Tarihi</label><input type="date" id="guidanceDate" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">İSG Uzmanı</label><input type="text" id="guidanceExpert" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Sonraki Ziyaret</label><input type="date" id="guidanceNextDate" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+            </div>
+            <div class="mb-4"><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Saha Gözlemleri</label><textarea id="guidanceObservations" rows="4" placeholder="Saha gözlemleri..." class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm resize-y"></textarea></div>
+            <div class="mb-4"><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Tavsiye ve Öneriler</label><textarea id="guidanceRecommendations" rows="4" placeholder="Tavsiyeler..." class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm resize-y"></textarea></div>
+            <div class="flex flex-wrap gap-3">
+                <button onclick="saveGuidance()" class="flex items-center gap-2 bg-meb-primary hover:bg-meb-primary-light text-white px-6 py-2.5 rounded-xl font-semibold transition"><i class="fas fa-save"></i> Kaydet</button>
+                <button onclick="generateGuidancePDF()" class="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-xl font-semibold transition"><i class="fas fa-file-pdf"></i> PDF İndir</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOŞ DENETİM -->
+    <div id="auditTab-bos-denetim" class="hidden">
+        <div class="glass-card rounded-xl p-6 text-center">
+            <i class="fas fa-file-alt text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Boş Denetim Formu</h3>
+            <p class="text-sm text-gray-500 mb-6">Tüm kontrol listeleri dahil boş formu PDF olarak indirin.</p>
+            <button onclick="generateEmptyAuditPDF()" class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg mx-auto"><i class="fas fa-file-pdf text-lg"></i> Boş Denetim Formu İndir (PDF)</button>
+        </div>
+    </div>
+
+    <!-- BOŞ REHBERLİK -->
+    <div id="auditTab-bos-rehberlik" class="hidden">
+        <div class="glass-card rounded-xl p-6 text-center">
+            <i class="fas fa-file text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Boş Rehberlik Formu</h3>
+            <p class="text-sm text-gray-500 mb-6">Boş rehberlik ziyaret formunu PDF olarak indirin.</p>
+            <button onclick="generateEmptyGuidancePDF()" class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold transition shadow-lg mx-auto"><i class="fas fa-file-pdf text-lg"></i> Boş Rehberlik Formu İndir (PDF)</button>
+        </div>
+    </div>
+
+    <!-- KAYITLAR -->
+    <div id="auditTab-kayitlar" class="hidden">
+        <div class="glass-card rounded-xl p-5">
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-4"><i class="fas fa-archive mr-2 text-meb-accent"></i>Kayıtlı Denetim & Rehberlik Kayıtları</h3>
+            <div id="auditRecordsList" class="space-y-3"></div>
+            <div id="auditRecordsEmpty" class="hidden text-center py-10"><i class="fas fa-clipboard text-5xl text-gray-300 dark:text-gray-600 mb-3"></i><p class="text-gray-500">Henüz kayıt yok</p></div>
         </div>
     </div>
 </div>
 
-<!-- Diğer tüm bölümler veya placeholder'lar orijinal akışa göre buraya dahildir -->
-<div id="section-reports" class="section-content hidden"><div class="glass-card rounded-xl p-6"><h2 class="text-xl font-bold mb-2">Raporlar</h2><p>Raporlama modülü aktif.</p></div></div>
-<div id="section-settings" class="section-content hidden"><div class="glass-card rounded-xl p-6"><h2 class="text-xl font-bold mb-2">Ayarlar</h2><p>Yedekleme ve sistem ayarları.</p></div></div>
+<!-- ===== SECTION: RAPORLAR ===== -->
+<div id="section-reports" class="section-content hidden">
+    <div class="mb-6">
+        <h2 class="text-2xl lg:text-3xl font-bold text-meb-primary dark:text-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center shadow-lg"><i class="fas fa-file-export text-white text-lg"></i></div>
+            Raporlar & Çıktı Merkezi
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">PDF ve Excel formatında rapor üretin</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <!-- Genel Puantaj -->
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4"><i class="fas fa-calendar-check text-green-600 text-xl"></i></div>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Genel Puantaj PDF</h3>
+            <p class="text-xs text-gray-500 mb-4">Tüm okullar — aylık puantaj cetveli</p>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <select id="rptPuantajMonth" class="px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"><option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option></select>
+                <select id="rptPuantajYear" class="px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"></select>
+            </div>
+            <button onclick="generateTimesheetPDFFromReport()" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-file-pdf"></i> PDF İndir</button>
+        </div>
+        <!-- OKUL BAZLI PUANTAJ -->
+        <div class="glass-card rounded-xl p-6 card-hover border-2 border-amber-200 dark:border-amber-800">
+            <div class="w-12 h-12 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-4"><i class="fas fa-school text-amber-600 text-xl"></i></div>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Okul Bazlı Puantaj PDF</h3>
+            <p class="text-xs text-gray-500 mb-3">Tek okul — tüm ayın iş günleri detaylı</p>
+            <select id="rptSchoolSelect" class="w-full px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs mb-3"><option value="">Okul seçin...</option></select>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <select id="rptSchoolMonth" class="px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"><option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option></select>
+                <select id="rptSchoolYear" class="px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"></select>
+            </div>
+            <button onclick="generateSchoolTimesheetPDF()" class="w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-file-pdf"></i> Okul Bazlı PDF</button>
+        </div>
+        <!-- İLÇE BAZLI TOPLAM PUANTAJ -->
+        <div class="glass-card rounded-xl p-6 card-hover border-2 border-indigo-200 dark:border-indigo-800">
+            <div class="w-12 h-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center mb-4"><i class="fas fa-city text-indigo-600 text-xl"></i></div>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">İlçe Bazlı Toplam Puantaj</h3>
+            <p class="text-xs text-gray-500 mb-3">Seçilen ilçedeki sözleşmeli okulların yalnızca toplam puantajı</p>
+            <select id="rptDistrictSelect" class="w-full px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs mb-3"><option value="">İlçe seçin...</option></select>
+            <div class="grid grid-cols-2 gap-2 mb-4">
+                <select id="rptDistrictMonth" class="px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"><option value="0">Ocak</option><option value="1">Şubat</option><option value="2">Mart</option><option value="3">Nisan</option><option value="4">Mayıs</option><option value="5">Haziran</option><option value="6">Temmuz</option><option value="7">Ağustos</option><option value="8">Eylül</option><option value="9">Ekim</option><option value="10">Kasım</option><option value="11">Aralık</option></select>
+                <select id="rptDistrictYear" class="px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"></select>
+            </div>
+            <button onclick="generateDistrictTimesheetPDF()" class="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-file-pdf"></i> İlçe Toplamını PDF Al</button>
+        </div>
+        <!-- Denetim -->
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mb-4"><i class="fas fa-search-plus text-blue-600 text-xl"></i></div>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Denetim Raporları PDF</h3>
+            <p class="text-xs text-gray-500 mb-4">Kayıtlı denetim raporları</p>
+            <select id="rptAuditSelect" class="w-full px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs mb-4"><option value="">Rapor seçin...</option></select>
+            <button onclick="downloadSelectedAuditPDF()" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-file-pdf"></i> PDF İndir</button>
+        </div>
+        <!-- Rehberlik -->
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-teal-100 dark:bg-teal-900/30 flex items-center justify-center mb-4"><i class="fas fa-hands-helping text-teal-600 text-xl"></i></div>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Rehberlik Raporları PDF</h3>
+            <p class="text-xs text-gray-500 mb-4">Kayıtlı rehberlik raporları</p>
+            <select id="rptGuidanceSelect" class="w-full px-2 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs mb-4"><option value="">Rapor seçin...</option></select>
+            <button onclick="downloadSelectedGuidancePDF()" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-file-pdf"></i> PDF İndir</button>
+        </div>
+        <!-- Excel -->
+        <div class="glass-card rounded-xl p-6 card-hover">
+            <div class="w-12 h-12 rounded-xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mb-4"><i class="fas fa-file-excel text-emerald-600 text-xl"></i></div>
+            <h3 class="font-bold text-lg text-meb-primary dark:text-white mb-2">Konsolide Excel</h3>
+            <p class="text-xs text-gray-500 mb-4">Tüm verileri tek Excel dosyasında</p>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div><label class="block text-[10px] font-semibold text-gray-500 mb-1">Başlangıç</label><input type="date" id="rptExcelStart" class="w-full px-2 py-1.5 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"></div>
+                <div><label class="block text-[10px] font-semibold text-gray-500 mb-1">Bitiş</label><input type="date" id="rptExcelEnd" class="w-full px-2 py-1.5 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-xs"></div>
+            </div>
+            <button onclick="exportExcel()" class="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-file-excel"></i> Excel İndir</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SECTION: AYARLAR ===== -->
+<div id="section-settings" class="section-content hidden">
+    <div class="mb-6">
+        <h2 class="text-2xl lg:text-3xl font-bold text-meb-primary dark:text-white flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gray-600 flex items-center justify-center shadow-lg"><i class="fas fa-cog text-white text-lg"></i></div>
+            Ayarlar & Yedekleme
+        </h2>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-card rounded-xl p-6">
+            <h3 class="font-bold text-lg mb-4 text-meb-primary dark:text-white"><i class="fas fa-user-tie mr-2 text-meb-accent"></i>Genel Bilgiler</h3>
+            <div class="space-y-4">
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">İSG Uzmanı Adı Soyadı</label><input type="text" id="settExpertName" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Unvan / Belge Sınıfı</label><select id="settExpertTitle" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"><option value="A Sınıfı İSG Uzmanı">A Sınıfı İSG Uzmanı</option><option value="B Sınıfı İSG Uzmanı">B Sınıfı İSG Uzmanı</option><option value="C Sınıfı İSG Uzmanı">C Sınıfı İSG Uzmanı</option></select></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">İl/İlçe Millî Eğitim Müdürlüğü</label><input type="text" id="settMemName" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">İlçe</label><input type="text" id="settIlce" class="w-full px-3 py-2.5 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+                <button onclick="saveSettings()" class="w-full flex items-center justify-center gap-2 bg-meb-primary hover:bg-meb-primary-light text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-save"></i> Kaydet</button>
+            </div>
+        </div>
+        <div class="space-y-6">
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="font-bold text-lg mb-4 text-meb-primary dark:text-white"><i class="fas fa-download mr-2 text-green-500"></i>Veri Yedekleme</h3>
+                <button onclick="exportBackup()" class="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-download"></i> JSON Yedekle</button>
+            </div>
+            <div class="glass-card rounded-xl p-6">
+                <h3 class="font-bold text-lg mb-4 text-meb-primary dark:text-white"><i class="fas fa-upload mr-2 text-blue-500"></i>Yedek Yükle</h3>
+                <div class="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-meb-accent transition" id="dropZone">
+                    <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                    <p class="text-sm text-gray-500">Sürükle-bırak veya <label class="text-meb-accent font-semibold underline cursor-pointer">dosya seç<input type="file" accept=".json" onchange="importBackup(event)" class="hidden"></label></p>
+                </div>
+            </div>
+            <div class="glass-card rounded-xl p-6 border border-red-200 dark:border-red-800">
+                <h3 class="font-bold text-lg mb-4 text-red-600"><i class="fas fa-exclamation-triangle mr-2"></i>Tehlikeli Bölge</h3>
+                <button onclick="confirmClearData()" class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2.5 rounded-lg font-semibold transition"><i class="fas fa-trash-alt"></i> Tüm Verileri Sil</button>
+            </div>
+        </div>
+    </div>
+    <div class="glass-card rounded-xl p-6 mt-6">
+        <h3 class="font-bold text-lg mb-4 text-meb-primary dark:text-white"><i class="fas fa-database mr-2 text-meb-accent"></i>Veri İstatistikleri</h3>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-gray-100 dark:bg-slate-700 rounded-lg p-3 text-center"><p class="text-2xl font-bold text-meb-primary dark:text-white" id="statSchoolsCount2">0</p><p class="text-xs text-gray-500">Okul</p></div>
+            <div class="bg-gray-100 dark:bg-slate-700 rounded-lg p-3 text-center"><p class="text-2xl font-bold text-meb-primary dark:text-white" id="statTimesheetCount2">0</p><p class="text-xs text-gray-500">Puantaj</p></div>
+            <div class="bg-gray-100 dark:bg-slate-700 rounded-lg p-3 text-center"><p class="text-2xl font-bold text-meb-primary dark:text-white" id="statAuditCount2">0</p><p class="text-xs text-gray-500">Denetim</p></div>
+            <div class="bg-gray-100 dark:bg-slate-700 rounded-lg p-3 text-center"><p class="text-2xl font-bold text-meb-primary dark:text-white" id="statGuidanceCount2">0</p><p class="text-xs text-gray-500">Rehberlik</p></div>
+        </div>
+    </div>
+</div>
 
 </div>
 </main>
 
-<!-- ==================== GELİŞMİŞ LİSANS VE AKTİVASYON MOTORU ==================== -->
+<!-- PDF RENDER AREA (hidden) -->
+<div id="pdfRenderArea" class="fixed -left-[9999px] top-0 w-[210mm]" style="font-family:'Inter',sans-serif;"></div>
+
 <script>
-    const SECRET_SALT = "MEB_ISG_IZMIR_2026_SECURE_KEY";
+// ============================================================
+    //  UTILITY HELPERS
+    // ============================================================
+    const MONTHS_TR = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+    const DAYS_SHORT = ['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'];
 
-    // Cihaz Parmak İzi (Device Fingerprint) Üreteci
-    function getDeviceFingerprint() {
-        let fp = localStorage.getItem('isg_device_fp');
-        if (!fp) {
-            fp = 'DEV-' + Math.random().toString(36).substring(2, 10).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
-            localStorage.setItem('isg_device_fp', fp);
-        }
-        return fp;
+    function esc(value) {
+        const div = document.createElement('div');
+        div.textContent = value == null ? '' : String(value);
+        return div.innerHTML;
     }
 
-    // Lisans Doğrulama ve Cihaz Kontrolü
-    function checkSystemLicense() {
-        const overlay = document.getElementById('licenseOverlay');
-        const savedKey = localStorage.getItem('isg_active_license');
-        const boundDevice = localStorage.getItem('isg_bound_device');
-        const currentDevice = getDeviceFingerprint();
-
-        if (savedKey && boundDevice === currentDevice && validateLicenseKeyString(savedKey)) {
-            overlay.classList.add('hidden');
-        } else {
-            overlay.classList.remove('hidden');
-        }
+    function fmtDate(value) {
+        if (!value) return '—';
+        const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (m) return `${m[3]}.${m[2]}.${m[1]}`;
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return String(value);
+        return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
     }
 
-    function verifyAndActivateLicense() {
-        const inputKey = document.getElementById('licenseInput').value.trim().toUpperCase();
-        const errorMsg = document.getElementById('licenseError');
-        const currentDevice = getDeviceFingerprint();
-
-        if (validateLicenseKeyString(inputKey)) {
-            // Başarılı: Lisansı ve cihazı eşle (Tek cihaz kilidi)
-            localStorage.setItem('isg_active_license', inputKey);
-            localStorage.setItem('isg_bound_device', currentDevice);
-            errorMsg.classList.add('hidden');
-            document.getElementById('licenseOverlay').classList.add('hidden');
-            alert("Aktivasyon başarılı! Sistem bu cihaz için kilitlendi.");
-            location.reload();
-        } else {
-            errorMsg.classList.remove('hidden');
-        }
+    function daysInMonth(year, month) {
+        return new Date(year, month + 1, 0).getDate();
     }
 
-    function validateLicenseKeyString(key) {
+    function hazLabel(value) {
+        return ({'az-tehlikeli':'Az Tehlikeli','tehlikeli':'Tehlikeli','cok-tehlikeli':'Çok Tehlikeli'})[value] || 'Belirtilmemiş';
+    }
+
+    function hazColor(value) {
+        return ({'az-tehlikeli':'green','tehlikeli':'amber','cok-tehlikeli':'red'})[value] || 'gray';
+    }
+
+    function catLabel(value) {
+        return value === 'sozlesmeli' ? 'Sözleşmeli' : value === 'rehberlik' ? 'Rehberlik' : 'Belirtilmemiş';
+    }
+
+// ============================================================
+//  DATA CONSTANTS — CHECKLIST CATEGORIES & FACILITY LIST
+// ============================================================
+const FACILITIES = [
+    'Acil Çıkış','Kantin','Yangın Merdiveni','Yemekhane','Yangın Dolabı','Paratoner',
+    'Yangın Söndürücü (YSC)','Jeneratör','Yangın Uyarı','Engelli Rampası','Yangın Algılama',
+    'Okulum Temiz Belgesi','Yangın Sprinkler','Sıfır Atık TS Belgesi','Kazan Dairesi',
+    'Su Deposu','Asansör','Su Kuyusu'
+];
+
+const CHECKLIST = [
+    { id:'isg-kurullari', title:'İSG KURULLARI', items:[
+        'İSG\'den sorumlu Müdür Yardımcısı "İveren Vekili" belirlendi, kendisine tebliğ edildi.',
+        'Çalışan Baş Temsilcisi / Çalışan Temsilcisi belirlendi, kendisine tebliğ edildi.',
+        'İSG Kurulu oluşturuldu. Kurul üyelerine görevleri tebliğ edildi. İSG Kurulları hakkında eğitim verildi.',
+        'İSG Kurulu olağan toplantıları yapılıyor. Kararlar kayıt altına alınıyor ve çalışanlara duyuruluyor.',
+        'Yıllık Plan hazırlandı. Okul Müdürü (İveren) tarafından onaylandı.',
+        'İş Sağlığı ve Güvenliği İç Yönergesi hazırlandı. Okul Müdürü (İveren) tarafından onaylandı.'
+    ]},
+    { id:'risk-degerlendirme', title:'RİSK DEĞERLENDİRME', items:[
+        'Risk Değerlendirme ekibi oluşturuldu. Ekip üyelerine Risk Eğitimi verildi.',
+        'Tehlikeler tespit edildi. MEBBİS İSG Modülü Kurum Risk Değerlendirme sayfasında risk değerlendirmesi yapıldı.',
+        'MEBBİS İSG Modülünden "Risk Değerlendirme Raporu" çıktısı alındı. Tüm çalışanlara imza karşılı duyuruldu.',
+        'MEBBİS İSG Modülü Risk Değerlendirme işlemleri takip ediliyor. Termin tarihi gelen risklerin revize işlemleri yapılıyor.',
+        'Risk değerlendirme sonucu 15 puan ve üstü riskler için, Risk Tabanlı Ödenek isteme sayfasından ödenek talep ediliyor.'
+    ]},
+    { id:'acil-durumlar', title:'ACİL DURUMLAR', items:[
+        'Acil Durum Ekipleri belirlendi, görevleri tebliğ edildi. Ekip üyelerine acil durum eğitimi verildi.',
+        'Yangınla Mücadele ve Söndürme Ekibi üyelerine Yangın Eğitimi verildi.',
+        'İlkyardım Ekibi üyelerine İlkyardımcı Eğitimi verildi.',
+        'Mart ayının ilk haftasında deprem dolayısıyla personel tahliye tatbikatı yapılmış. Rapor İSG Modülüne girilmiş.',
+        'Ekim ayında afet farkındalığı kapsamında personel tahliye tatbikatı yapılmış. Rapor İSG Modülüne girilmiş.',
+        'Kaçış yollarında herhangi bir engel, kilit, eşya depolama, ilave kapı ya da oda vb. yoktur.',
+        'Acil toplanma alanı belirlendi, güvenli yer olarak herkesin görebileceği şekilde işaretlendi.',
+        'Tahliye planları ile acil durum yönlendirme ve ACİL ÇIKIŞ levhaları uygun yerlere asıldı.',
+        'Acil durum planları, tatbikat raporları ve tahliye planları tüm çalışanlara imza karşılı duyuruldu.'
+    ]},
+    { id:'yangin-sistemleri', title:'YANGIN SİSTEMLERİ', items:[
+        '"Yangın Önleme ve Söndürme İç Düzenlemesi" hazırlandı.',
+        'Yangın vukuunda hareket tarzı tablosu, öğrenci ve çalışanların görebileceği yerlere asıldı.',
+        'Yangın uyarı sistemi; yangın algılama, alarm verme, kontrol sistemi var. Çalışır durumda.',
+        'Taşınabilir YSC montajı uygun, erişim engeli yok, kullanım kılavuzu ve işaretlemeleri asılmış.',
+        'Taşınabilir YSC dolum tarihi ve yerinde kontrol tarihleri uygun. Yılda en az iki kez kontrol yapılmakta.',
+        'Yangın dolapları TS EN 671/1 standardında, hortumları yarı-sert 25mm çapında 30m olup standarda uygun.',
+        'Yangın dolapları bakımlı, kullanıma hazır, erişim engeli yok. Yılda en az iki kez kontrolleri yapılmakta.',
+        'Yangın Sistemi İl MEM PK Uzmanları tarafından periyodik kontrolleri yapılmış. Rapor MEBBİS\'e girilmiş.'
+    ]},
+    { id:'elektrik-tesisati', title:'ELEKTRİK TESİSATI', items:[
+        'Elektrik anapanosu yeri izolasyonu en az 2mm kalınlığında, 1000V dayanımlı yalıtkan paspas ile sağlanmış.',
+        'Elektrik planı veya kolon şeması anapanoya yakın yerde çerçeve içinde muhafaza edilmiş.',
+        'Elektrik anapanosu elemanları etiketlenmiş, elektrik odasında CO2 yangın söndürücü bulundurulmalı.',
+        'Tali elektrik pano elemanları etiketlenmiş, priz ve ışık linyeleri için ayrı ayrı 30mA kaçak akım rölesi tesis edilmiş.',
+        'Elektrik tesisatı, İl MEM PK Uzmanları tarafından periyodik kontrolleri yapılmış. Rapor MEBBİS\'e girilmiş.',
+        'Topraklama tesisatı, İl MEM PK Uzmanları tarafından periyodik kontrolleri yapılmış. Rapor MEBBİS\'e girilmiş.',
+        'Islak zemin ve nemli alanlarda açıkta yalıtılmamış elektrik tesisatı, kablo, priz, anahtar vb. bulunmamaktadır.',
+        'Elektrik tesisatı ile ilave tesisatlar için onay alınmış, ek tesisat için antigron kablo kullanılmış.'
+    ]},
+    { id:'cati', title:'ÇATI', items:[
+        'Çatıya erişim engellenmiş, kapısı kilitli. Çatı depo olarak kullanılması engellenmiş.',
+        'Çatıya elektrik tesisatı çekilmesi önlenmiş.',
+        'Paratoner tesisatı, İl MEM PK Uzmanları tarafından periyodik kontrolleri yapılmış. Rapor MEBBİS\'e girilmiş.'
+    ]},
+    { id:'kazan-dairesi', title:'KAZAN DAİRESİ', items:[
+        'Kazan dairesi işletme talimatı, sorumlusuna ait ateşleyici belgesi görünür bir yere asılmış.',
+        'Boru hatları, pompa ve vanalar üzerinde uygun tanımlamalar yapılmış.',
+        'Kazan dairelerinde duman dedektörü ve gaz kesme ana vanası vardır.',
+        'Kazan dairesinin depo amaçlı kullanımı engellenmiş. Gereksiz malzemeler yoktur.',
+        'Kazan dairesinde en az 1 adet 6 kg kuru kimyevi tozlu yangın söndürme cihazı vardır.',
+        'Kapasitesi 350 kW üzerindeki kazan dairesi için yangın dolabı ile en az 2 çıkış kapısı vardır.',
+        'Kazan dairesinde elektrik panosu dışarıda olup, acil stop butonu çalışır durumdadır.',
+        'Yıllık baca temizliği ve emisyon ölçümleri yetkili firmalara yaptırılmış.',
+        'Kalorifer kazanları, basınçlı hava tanklarının yılda bir kez periyodik kontrolleri yapılmıştır.'
+    ]},
+    { id:'genel-fiziki', title:'GENEL FİZİKİ ŞARTLAR', items:[
+        'Merdivenlerde düşmelere ve kaymalara karşı kaydırmaz bant uygulaması yapılmıştır.',
+        'Uygun olmayan merdiven korkulukları için (file uygulaması) önlem alınmıştır.',
+        'Bahçe zemini uygun, sivri materyallerden temizlenmiş, açık rögarlar için önlem alınmış.',
+        'Bahçe duvar ve ekleri; yıkılma, yırtma, kesme gibi riskleri taşımıyor.',
+        'Bahçe giriş kapısında devrilmeye, sıkışmaya karşı önlemler alınmış.',
+        'Bahçeden direk çıkışlar güvenli alana yapılıyor. Bahçe kapılarında güvenlik önlemleri alınmış.',
+        'Giriş kapısının güvenliği sağlanmış. Gelen ziyaretçilerin bilgileri kayıt altına alınıyor.',
+        'Pencerelerde düşme riski varsa açıklık 10 cm ile sınırlandırılmış.',
+        'Devrilecek kitaplık ve dolap gibi ağır eşyalar duvara sabitlenmiştir.',
+        'Bütün zeminlerde kayma veya düşmeye karşı tedbirler alınıp uyarılar yapılmış.',
+        'Güvenlik açısından cam kapılar, camlı bölümler kırılmaya karşı önlem alınmış.',
+        'Okulda çöp kovaları temiz ve kapaklı, WC\'lerde hijyen sağlanmış.',
+        'Kimyasallar orijinal kaplarında, ışık görmeyen kilitli depolarda muhafaza edilmektedir.',
+        'Sınıf kapılarında sıkışma, çarpma vb. tehlikelere karşı önlem alındı.',
+        'Sınıf kapıları acil çıkışlar için uygun.',
+        'İlkyardım dolapları hemen erişim sağlanabilecek yerlerde, tıbbi malzemeler yeterli ve uygun.',
+        'Makina, araç ve gereçlerin kullanma talimatı görülebilir yerlere asılmıştır.',
+        'Akışkan tesisatları yıllık periyodik kontrolleri yapılmış.',
+        'Sıfır Atık EÇBS Bilgi Sistemi girişi yapılmış, yönetmeliğe uygun faaliyetler yürütülüyor.',
+        'Okulum Temiz Belgesi var. Okul/Kurum kılavuzda belirtilen şartlara uygun.',
+        'Kantin Okul Denetleme Komisyonu ayda bir, İlçe Denetleme Komisyonu yılda en az bir defa denetleniyor.'
+    ]},
+    { id:'egitim-kayit', title:'EĞİTİM, KAYIT, BİLGİ', items:[
+        'Çalışanların temel İSG eğitimleri İBA\'dan almaları sağlanmış. Eğitim belgeleri İSG dosyasında muhafaza ediliyor.',
+        'Gıda üretimi ve temizlik işlerinde çalışanlara hijyen eğitimi alması sağlanmış.',
+        'Kazandan sorumlu personelin kazan dairesi işletmeciliği (ateşçi) eğitimi alması sağlandı.',
+        'Ramakkala ve tehlike bildirim kutusu var. Ramakkala olaylar kayıt altına alınıyor. İSG Denetim modülüne işleniyor.'
+    ]},
+    { id:'is-kazalari', title:'İŞ KAZALARI', items:[
+        'İş kazası/meslek hastalığı durumunda SGK\'ya bildirim yapılıyor.',
+        'İş kazaları kayıt altına alınıyor, kök neden analizi yapılıyor.',
+        'İş kazası sonrası düzeltici ve önleyici faaliyetler yürütülüyor.',
+        'İş kazası istatistikleri tutularak İSG Kuruluna raporlanıyor.'
+    ]},
+    { id:'ikur-typ', title:'İ-KUR (TYP)', items:[
+        'İ-Kur (TYP) çalışanlarının İSG oryantasyon eğitimi verildi ve takip ediliyor.',
+        'İ-Kur (TYP) çalışanlarına İş Başı Oryantasyon Eğitimleri verildi. Formlar İlçe MEM İSGB\'ye gönderildi.',
+        'İ-Kur (TYP) çalışanlarına Hijyen eğitimi verildi. Belgeleri İlçe MEM İSGB\'ye gönderildi.',
+        'İ-Kur (TYP) çalışanlarına "Görev Tanımları" yapıldı. İlçe MEM İSGB\'ye gönderildi.',
+        'İ-Kur (TYP) çalışanları için kişisel koruyucu donanımlar (KKD) sağlandı.',
+        'KKD\'ler zimmet karşılı teslim edildi. KKD kullanması takip ediliyor.',
+        'İ-Kur (TYP) çalışanlarına İSG talimatları imzalatıldı. İlçe MEM İSGB\'ye gönderildi.',
+        'İ-Kur (TYP) çalışanları sözleşmeleri gereği işlerde çalıştırılıyor.'
+    ]},
+    { id:'mtal-isg', title:'MTAL İSG', items:[
+        'Makina-ekipmanların periyodik bakımları yapılmış. Bakım kartları hazırlanmış.',
+        'Makina-ekipmanlarının koruyucu güvenlik ekipmanları çıkarılmamış.',
+        '11. sınıf öğrencilerine İME çalışmaları öncesinde İSG eğitimi verilmiş.',
+        'İME gören öğrencilere, çalıştığı işyerinde İSG eğitimleri alması sağlanmış.',
+        'İME çalışmaları öncesinde işe giriş muayeneleri yapılmış, rapor okul idaresine teslim edilmiş.'
+    ]}
+];
+
+// ============================================================
+//  DATA MANAGER
+// ============================================================
+const DB = {
+    _k: { schools:'meb_isg_schools', timesheets:'meb_isg_timesheets', audits:'meb_isg_audits', guidances:'meb_isg_guidances', settings:'meb_isg_settings', theme:'meb_isg_theme' },
+    _g(k) { try { return JSON.parse(localStorage.getItem(k)) || []; } catch { return []; } },
+    _s(k,d) {
         try {
-            const parts = key.split('-');
-            if (parts.length !== 4) return false;
-
-            const type = parts[0]; // DEMO veya FULL
-            const expiryTime = parseInt(parts[1], 36);
-            const checksum = parts[2];
-            
-            // Süre aşılmış mı?
-            if (Date.now() > expiryTime) return false;
-
-            // Şifreleme sağlama kontrolü
-            const expectedHash = generateKeyHash(type, expiryTime);
-            return checksum === expectedHash;
-        } catch (e) {
+            localStorage.setItem(k, JSON.stringify(d));
+            return true;
+        } catch (err) {
+            showToast('Yerel depolama alanı doldu. Fotoğraf/veri miktarını azaltın veya yedek alın.', 'error');
+            console.error('localStorage write failed:', err);
             return false;
         }
+    },
+    getSchools() { return this._g(this._k.schools); },
+    addSchool(s) { const a=this.getSchools(); s.id='sch_'+Date.now()+'_'+Math.random().toString(36).substr(2,5); s.createdAt=new Date().toISOString(); a.push(s); this._s(this._k.schools,a); return s; },
+    updateSchool(id,d) { const a=this.getSchools(); const i=a.findIndex(s=>s.id===id); if(i!==-1){a[i]={...a[i],...d};this._s(this._k.schools,a);} },
+    deleteSchool(id) { this._s(this._k.schools, this.getSchools().filter(s=>s.id!==id)); },
+    getSchoolById(id) { return this.getSchools().find(s=>s.id===id); },
+    getTimesheets() { return this._g(this._k.timesheets); },
+    addTimesheet(e) { const a=this.getTimesheets(); e.id='ts_'+Date.now()+'_'+Math.random().toString(36).substr(2,5); e.createdAt=new Date().toISOString(); a.push(e); this._s(this._k.timesheets,a); return e; },
+    deleteTimesheet(id) { this._s(this._k.timesheets, this.getTimesheets().filter(e=>e.id!==id)); },
+    getTimesheetsByMonth(y,m) { return this.getTimesheets().filter(e=>{const d=new Date(e.date);return d.getFullYear()===y&&d.getMonth()===m;}); },
+    getDailyTotal(date) { return this.getTimesheets().filter(e=>e.date===date).reduce((s,e)=>s+parseFloat(e.hours||0),0); },
+    getAudits() { return this._g(this._k.audits); },
+    addAudit(a) { const arr=this.getAudits(); a.id='aud_'+Date.now()+'_'+Math.random().toString(36).substr(2,5); a.createdAt=new Date().toISOString(); arr.push(a); this._s(this._k.audits,arr); return a; },
+    deleteAudit(id) { this._s(this._k.audits, this.getAudits().filter(a=>a.id!==id)); },
+    getGuidances() { return this._g(this._k.guidances); },
+    addGuidance(g) { const a=this.getGuidances(); g.id='guid_'+Date.now()+'_'+Math.random().toString(36).substr(2,5); g.createdAt=new Date().toISOString(); a.push(g); this._s(this._k.guidances,a); return g; },
+    deleteGuidance(id) { this._s(this._k.guidances, this.getGuidances().filter(g=>g.id!==id)); },
+    getSettings() { try{return JSON.parse(localStorage.getItem(this._k.settings))||{};}catch{return{};} },
+    saveSettings(s) { localStorage.setItem(this._k.settings, JSON.stringify(s)); },
+    getTheme() { return localStorage.getItem(this._k.theme)||'light'; },
+    saveTheme(t) { localStorage.setItem(this._k.theme, t); },
+    clearAll() { Object.values(this._k).forEach(k => localStorage.removeItem(k)); },
+    exportAll() { return {version:'2.0',exportDate:new Date().toISOString(),schools:this.getSchools(),timesheets:this.getTimesheets(),audits:this.getAudits(),guidances:this.getGuidances(),settings:this.getSettings()}; },
+    importAll(d) { if(d.schools)this._s(this._k.schools,d.schools);if(d.timesheets)this._s(this._k.timesheets,d.timesheets);if(d.audits)this._s(this._k.audits,d.audits);if(d.guidances)this._s(this._k.guidances,d.guidances);if(d.settings)this._s(this._k.settings,d.settings); }
+};
+
+// ============================================================
+//  MEB KURUM TÜRLERİ (Otomatik Tamamlama)
+// ============================================================
+const MEB_KURUM_TURLERI = [
+    'Halk Eğitim Merkezi','Halk Eğitimi Merkezi ve Akşam Sanat Okulu','Öğretmenevi','Öğretmenevi ve ASO',
+    'İlkokulu','Ortaokulu','Anaokulu','İmam Hatip Ortaokulu',
+    'Anadolu Lisesi','Fen Lisesi','Sosyal Bilimler Lisesi','Spor Lisesi','Güzel Sanatlar Lisesi',
+    'Anadolu İmam Hatip Lisesi','Kız Anadolu İmam Hatip Lisesi',
+    'Mesleki ve Teknik Anadolu Lisesi','Endüstri Meslek Lisesi','Kız Meslek Lisesi','Ticaret Meslek Lisesi',
+    'Turizm Otelcilik Lisesi','Sağlık Meslek Lisesi',
+    'Özel Eğitim Uygulama Okulu','Rehberlik ve Araştırma Merkezi','Bilim ve Sanat Merkezi',
+    'Olgunlaşma Enstitüsü','Yetişkin Eğitim Merkezi','İlçe Milli Eğitim Müdürlüğü',
+    'Gazi İlkokulu','Atatürk İlkokulu','Cumhuriyet İlkokulu','Fatih İlkokulu',
+    'Mehmet Akif Ersoy İlkokulu','Yunus Emre İlkokulu','Mimar Sinan İlkokulu',
+    'Gazi Ortaokulu','Atatürk Ortaokulu','Cumhuriyet Ortaokulu','Fatih Ortaokulu',
+    '75. Yıl İlkokulu','100. Yıl İlkokulu','23 Nisan İlkokulu','29 Ekim İlkokulu',
+    'TOKİ İlkokulu','TOKİ Ortaokulu','TOKİ Anadolu Lisesi',
+    'Bahçeşehir İlkokulu','Yavuz Selim İlkokulu','Anadolu İlkokulu','Milli Egemenlik İlkokulu'
+];
+const IZMIR_ILCELER = ['Aliağa','Balçova','Bayındır','Bayraklı','Bergama','Beydağ','Bornova','Buca','Çeşme','Çiğli','Dikili','Foça','Gaziemir','Güzelbahçe','Karabağlar','Karaburun','Karşıyaka','Kemalpaşa','Kınık','Kiraz','Konak','Menderes','Menemen','Narlıdere','Ödemiş','Seferihisar','Selçuk','Tire','Torbalı','Urla'];
+
+//  CHECKLIST RECOMMENDATIONS (6331 Sayılı Kanun)
+// ============================================================
+const CHECKLIST_RECS = {
+    'isg-kurullari': [
+        '6331/22. md. gereği İSG kurulu oluşturulmalı ve düzenli toplanmalıdır.',
+        'İSG kurulu üyeleri belirlenip görevlendirme yazıları hazırlanmalıdır.',
+        'Kurul toplantı tutanakları usulüne uygun tutulmalıdır.',
+        'Kurul kararları takip edilmeli ve uygulanmalıdır.',
+        'İSG kurulu eğitimleri planlanmalı ve gerçekleştirilmelidir.',
+        'Kurul üyelerinin görev tanımları yazılı olarak belirlenmelidir.'
+    ],
+    'risk-degerlendirme': [
+        '6331/10. md. gereği risk değerlendirmesi yaptırılmalıdır.',
+        'Risk değerlendirme ekibi oluşturulmalıdır.',
+        'Risk değerlendirme raporu güncellenmeli ve revize edilmelidir.',
+        'Tespit edilen riskler için düzeltici önlemler uygulanmalıdır.',
+        'Risk değerlendirmesi tüm çalışanlara duyurulmalıdır.'
+    ],
+    'acil-durumlar': [
+        '6331/11. md. gereği acil durum planı hazırlanmalıdır.',
+        'Acil durum ekipleri (söndürme, kurtarma, ilkyardım) oluşturulmalıdır.',
+        'Yılda en az 1 kez acil durum tatbikatı yapılmalıdır.',
+        'Acil çıkış yolları işaretlenmeli ve engelsiz tutulmalıdır.',
+        'Acil durum toplanma alanı belirlenmeli ve işaretlenmelidir.',
+        'Acil durum numaraları görünür yerlere asılmalıdır.',
+        'İlkyardım dolabı/çantası bulundurulmalı ve kontrol edilmelidir.',
+        'Acil aydınlatma armatürleri çalışır durumda olmalıdır.',
+        'Acil durum planı tüm çalışanlara duyurulmalıdır.'
+    ],
+    'yangin-sistemleri': [
+        'Yangın söndürme tüpleri yeterli sayıda bulundurulmalıdır.',
+        'Yangın söndürme tüplerinin periyodik bakımları yaptırılmalıdır.',
+        'Yangın algılama ve uyarı sistemi kurulmalı/bakımı yapılmalıdır.',
+        'Yangın dolabı ve hortumları kontrol edilmelidir.',
+        'Yangın merdivenleri engelsiz ve kullanılabilir olmalıdır.',
+        'Yangın çıkış kapıları panik barlı olmalı ve dışa açılmalıdır.',
+        'Yangın söndürme eğitimi verilmelidir.',
+        'Yangın tahliye planı hazırlanmalı ve asılmalıdır.'
+    ],
+    'elektrik-tesisati': [
+        'Elektrik iç tesisat raporu alınmalıdır.',
+        'Topraklama ölçüm raporu güncellenmelidir.',
+        'Elektrik panoları kapalı ve kilitli tutulmalıdır.',
+        'Açık kablo ve priz sorunları giderilmelidir.',
+        'Kaçak akım rölesi (KAR) tüm devrelere takılmalıdır.',
+        'Elektrik tesisatı yetkili elektrikçi tarafından kontrol edilmelidir.',
+        'Pano önlerine yalıtkan paspas konulmalıdır.',
+        'Elektrik güvenliği uyarı işaretleri asılmalıdır.'
+    ],
+    'cati': [
+        'Çatı periyodik kontrolü yaptırılmalıdır.',
+        'Çatıda su sızıntısı ve izolasyon sorunları giderilmelidir.',
+        'Çatı güvenlik önlemleri (korkuluk, yaşam hattı) sağlanmalıdır.'
+    ],
+    'kazan-dairesi': [
+        'Kazan periyodik kontrol raporu alınmalıdır.',
+        'Kazan dairesi temiz ve düzenli tutulmalıdır.',
+        'Kazan dairesi kapısı yangına dayanıklı olmalıdır.',
+        'Doğalgaz dedektörü takılmalı ve kontrol edilmelidir.',
+        'Kazan dairesinde yangın söndürme tüpü bulundurulmalıdır.',
+        'Kazan dairesi havalandırması yeterli olmalıdır.',
+        'Kazan bakım sözleşmesi yapılmalıdır.',
+        'Kazan dairesi giriş çıkış uyarı levhaları asılmalıdır.',
+        'Kazan operatörü sertifikalı olmalıdır.'
+    ],
+    'genel-fiziki': [
+        'Merdiven korkulukları kontrol edilmeli ve eksikler tamamlanmalıdır.',
+        'Zemin kaplamaları düzeltilmeli, kayma riski giderilmelidir.',
+        'Aydınlatma yeterli seviyeye getirilmelidir.',
+        'Tuvalet ve lavabolar hijyen kurallarına uygun olmalıdır.',
+        'Bina giriş-çıkışları engelli erişimine uygun olmalıdır.',
+        'Pencere korkulukları yeterli yükseklikte olmalıdır.',
+        'Boya-badana ve duvar çatlakları giderilmelidir.',
+        'Kapılar düzgün kapanmalı, cam güvenliği sağlanmalıdır.',
+        'Isıtma/soğutma sistemi kontrol edilmelidir.',
+        'Depo ve arşiv alanları düzenlenmelidir.',
+        'Temizlik malzemeleri uygun şekilde depolanmalıdır.',
+        'Bahçe/oyun alanı güvenliği sağlanmalıdır.',
+        'İş güvenliği levhaları asılmalıdır.',
+        'Mutfak/yemekhane hijyen kurallarına uygunluğu kontrol edilmelidir.',
+        'Kantin/kafeterya denetimi yapılmalıdır.',
+        'Atık yönetimi düzenlenmelidir.',
+        'Havalandırma ve iklimlendirme kontrol edilmelidir.',
+        'Su tesisatı kontrolü ve su analizi yaptırılmalıdır.',
+        'Gürültü ölçümü yapılmalıdır.',
+        'Ergonomik düzenleme yapılmalıdır.',
+        'Genel temizlik ve düzen sağlanmalıdır.'
+    ],
+    'egitim-kayit': [
+        '6331/17. md. gereği tüm çalışanlara İSG eğitimi verilmelidir.',
+        'Eğitim kayıtları ve katılım formları dosyalanmalıdır.',
+        'Çalışan bilgilendirme panosu oluşturulmalıdır.',
+        'İSG dokümanları düzenli arşivlenmelidir.'
+    ],
+    'is-kazalari': [
+        'İş kazası bildirim prosedürü oluşturulmalıdır.',
+        'Ramak kala olaylar kayıt altına alınmalıdır.',
+        'İş kazası istatistikleri tutulmalı ve analiz edilmelidir.',
+        'Kaza sonrası kök neden analizi yapılmalıdır.'
+    ],
+    'typ-ikur': [
+        'TYP çalışanlarına İSG eğitimi verilmelidir.',
+        'TYP çalışanlarına KKD (kişisel koruyucu donanım) sağlanmalıdır.',
+        'TYP çalışanlarının görev tanımları yazılı olmalıdır.',
+        'TYP çalışanlarının sağlık raporları alınmalıdır.',
+        'TYP çalışanları tehlikeli işlerde çalıştırılmamalıdır.',
+        'TYP çalışanlarının çalışma saatleri takip edilmelidir.',
+        'TYP çalışanlarına yönelik risk değerlendirmesi yapılmalıdır.',
+        'TYP/İŞKUR koordinasyonu sağlanmalıdır.'
+    ],
+    'mtal-isg': [
+        'Atölye ve laboratuvar güvenlik kuralları belirlenmelidir.',
+        'Atölyelerde uygun KKD kullanımı sağlanmalıdır.',
+        'Makine ve ekipman koruyucuları kontrol edilmelidir.',
+        'Öğrencilere İSG eğitimi verilmeli ve belgelenmelidir.',
+        'Kimyasal madde güvenlik bilgi formları (MSDS) bulundurulmalıdır.'
+    ]
+};
+
+// ============================================================
+//  PHOTO MANAGEMENT
+// ============================================================
+let auditPhotos = [];
+const MAX_PHOTOS = 100;
+const PHOTO_MAX_W = 800;
+const PHOTO_QUALITY = 0.7;
+
+function handlePhotoUpload(e) {
+    const files = Array.from(e.target.files || []);
+    processPhotoFiles(files);
+    e.target.value = '';
+}
+
+function processPhotoFiles(files) {
+    const remaining = MAX_PHOTOS - auditPhotos.length;
+    if (remaining <= 0) {
+        showToast('Maksimum 100 fotoğrafa ulaşıldı!', 'warning');
+        return;
     }
 
-    function generateKeyHash(type, expiryTime) {
-        let str = type + "_" + expiryTime + "_" + SECRET_SALT;
-        let hash = 0;
-        for (let i = 0; i < str.length; i++) {
-            let char = str.charCodeAt(i);
-            hash = ((hash << 5) - hash) + char;
-            hash = hash & hash;
-        }
-        return Math.abs(hash).toString(16).toUpperCase().substring(0, 8);
+    const candidates = files.slice(0, remaining).filter(file => file && file.type && file.type.startsWith('image/'));
+    if (!candidates.length) {
+        showToast('Geçerli bir görsel dosyası seçin.', 'warning');
+        return;
     }
 
-    // =========================================================================
-    // 🔑 LİSANS ÜRETME ARACI (Konsoldan veya Yönetici Panelinden Üretim İçin)
-    // =========================================================================
-    window.generateNewKey = function(type, durationDays) {
-        const expiryTime = Date.now() + (durationDays * 24 * 60 * 60 * 1000);
-        const timeBase36 = expiryTime.toString(36).toUpperCase();
-        const hash = generateKeyHash(type, expiryTime);
-        const randSuffix = Math.random().toString(36).substring(2, 6).toUpperCase();
-        const finalKey = `${type}-${timeBase36}-${hash}-${randSuffix}`;
-        
-        console.log(`%c=== ÜRETİLEN LİSANS (${type} - ${durationDays} Gün) ===`, "color: green; font-weight: bold;");
-        console.log(finalKey);
-        return finalKey;
-    };
+    let completed = 0;
+    candidates.forEach(file => {
+        const reader = new FileReader();
 
-    // Örnek İstediğiniz Üretimler Hazır Fonksiyona Bağlandı:
-    // 500 Günlük Demo Anahtar Üretmek İçin Konsola: generateNewKey('DEMO', 500) yazın.
-    // 1000 Günlük Tam Sürüm Üretmek İçin Konsola: generateNewKey('FULL', 1000) yazın.
+        reader.onerror = () => {
+            completed++;
+            if (completed === candidates.length) renderPhotoGallery();
+        };
 
-    // Sayfa Açıldığında Lisans Kontrolünü Çalıştır
-    document.addEventListener("DOMContentLoaded", checkSystemLicense);
-</script>
+        reader.onload = ev => {
+            const img = new Image();
 
-<!-- Orijinal Uygulama Fonksiyonlarının Yer Aldığı Alan -->
-<script>
-    // Sekme geçişleri ve arayüz fonksiyonları
-    function showSection(sectionId) {
-        document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
-        document.getElementById('section-' + sectionId).classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-        const activeNav = document.querySelector(`[data-section="${sectionId}"]`);
-        if(activeNav) activeNav.classList.add('active');
-    }
+            img.onerror = () => {
+                completed++;
+                if (completed === candidates.length) renderPhotoGallery();
+            };
 
-    function showAuditTab(tabId) {
-        ['denetim', 'rehberlik', 'bos-denetim', 'bos-rehberlik', 'kayitlar'].forEach(t => {
-            const el = document.getElementById('auditTab-' + t);
-            if(el) el.classList.add('hidden');
-        });
-        const target = document.getElementById('auditTab-' + (tabId.includes('bos') ? 'denetim' : tabId));
-        if(target) target.classList.remove('hidden');
-    }
+            img.onload = () => {
+                let w = img.naturalWidth || img.width;
+                let h = img.naturalHeight || img.height;
+                if (!w || !h) {
+                    completed++;
+                    if (completed === candidates.length) renderPhotoGallery();
+                    return;
+                }
 
-    function toggleTheme() {
-        const html = document.documentElement;
-        html.classList.toggle('dark');
-        const isDark = html.classList.contains('dark');
-        localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    }
+                if (w > PHOTO_MAX_W) {
+                    h = Math.round(h * PHOTO_MAX_W / w);
+                    w = PHOTO_MAX_W;
+                }
 
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebar');
-        sidebar.classList.toggle('-translate-x-full');
-    }
+                const canvas = document.createElement('canvas');
+                canvas.width = w;
+                canvas.height = h;
 
-    // Uygulama ilk yükleme verileri
-    document.addEventListener("DOMContentLoaded", function() {
-        const savedTheme = localStorage.getItem('theme');
-        if(savedTheme === 'dark') document.documentElement.classList.add('dark');
-        
-        // Yıl select doldurma
-        const yearSelect = document.getElementById('tsYear');
-        if(yearSelect) {
-            const currentYear = new Date().getFullYear();
-            for(let y = currentYear - 1; y <= currentYear + 2; y++) {
-                let opt = document.createElement('option');
-                opt.value = y;
-                opt.textContent = y;
-                if(y === currentYear) opt.selected = true;
-                yearSelect.appendChild(opt);
-            }
-        }
+                const ctx = canvas.getContext('2d');
+                if (!ctx) {
+                    completed++;
+                    if (completed === candidates.length) renderPhotoGallery();
+                    return;
+                }
+
+                ctx.drawImage(img, 0, 0, w, h);
+                auditPhotos.push(canvas.toDataURL('image/jpeg', PHOTO_QUALITY));
+
+                completed++;
+                if (completed === candidates.length) renderPhotoGallery();
+            };
+
+            img.src = ev.target.result;
+        };
+
+        reader.readAsDataURL(file);
     });
+}
+
+function removePhoto(idx) {
+    auditPhotos.splice(idx, 1);
+    renderPhotoGallery();
+}
+
+function clearAllPhotos() {
+    auditPhotos = [];
+    renderPhotoGallery();
+}
+
+function renderPhotoGallery() {
+    const g = document.getElementById('photoGallery');
+    const cnt = document.getElementById('photoCount');
+    if (!g) return;
+    cnt.textContent = auditPhotos.length;
+    g.innerHTML = auditPhotos.map((p, i) => `<div class="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-slate-600 aspect-square"><img src="${p}" class="w-full h-full object-cover"><div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center"><button onclick="removePhoto(${i})" class="bg-red-600 text-white w-7 h-7 rounded-full text-xs"><i class="fas fa-times"></i></button></div><span class="absolute bottom-0 right-0 bg-black/60 text-white text-[9px] px-1">${i + 1}</span></div>`).join('');
+}
+
+// Drag & Drop
+document.addEventListener('DOMContentLoaded', () => {
+    const dz = document.getElementById('photoDropZone');
+    if (!dz) return;
+    ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('border-meb-accent', 'bg-blue-50', 'dark:bg-slate-700'); }));
+    ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove('border-meb-accent', 'bg-blue-50', 'dark:bg-slate-700'); }));
+    dz.addEventListener('drop', e => { processPhotoFiles(Array.from(e.dataTransfer.files)); });
+});
+
+// ============================================================
+//  AUTO RECOMMENDATIONS & PHOTO PDF BUILDERS
+// ============================================================
+function buildAutoRecommendationsHTML(data) {
+    const findings = [];
+    let fNo = 1;
+    CHECKLIST.forEach(cat => {
+        const answers = data.checklist?.[cat.id] || [];
+        const recs = CHECKLIST_RECS[cat.id] || [];
+        cat.items.forEach((item, idx) => {
+            if (answers[idx] === 'hayir') {
+                findings.push({ no: fNo++, category: cat.title, item: item, rec: recs[idx] || '6331 sayılı kanun gereği gerekli düzeltici faaliyet başlatılmalıdır.' });
+            }
+        });
+    });
+    if (!findings.length) return '';
+    let rows = findings.map(f => `<tr><td style="border:1px solid #d1d5db;padding:3px 5px;font-size:9px;text-align:center;width:22px;">${f.no}</td><td style="border:1px solid #d1d5db;padding:3px 5px;font-size:8px;color:#666;width:80px;">${esc(f.category.replace(/^\d+[\.\)]\s*/,''))}</td><td style="border:1px solid #d1d5db;padding:3px 5px;font-size:9px;">${esc(f.item)}</td><td style="border:1px solid #d1d5db;padding:3px 5px;font-size:9px;color:#dc2626;font-weight:bold;text-align:center;width:35px;">HAYIR</td><td style="border:1px solid #d1d5db;padding:3px 5px;font-size:9px;color:#1e3a5f;font-weight:500;">${esc(f.rec)}</td></tr>`).join('');
+    return `<div style="page-break-inside:avoid;margin-top:12px;"><div style="background:#dc2626;color:white;padding:8px 12px;font-size:12px;font-weight:bold;border-radius:3px 3px 0 0;"><i class="fas fa-exclamation-triangle" style="margin-right:6px;"></i>TESPİT VE ÖNERİLER (6331 Sayılı Kanun Kapsamında)</div><div style="font-size:9px;color:#666;padding:4px 8px;background:#fef2f2;border:1px solid #fecaca;">Aşağıdaki tespitler denetim sırasında "HAYIR" olarak işaretlenen maddelerden otomatik oluşturulmuştur.</div><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#fef2f2;"><th style="border:1px solid #d1d5db;padding:3px;font-size:8px;width:22px;">No</th><th style="border:1px solid #d1d5db;padding:3px;font-size:8px;width:80px;">Kategori</th><th style="border:1px solid #d1d5db;padding:3px;font-size:8px;">Tespit Edilen Eksiklik</th><th style="border:1px solid #d1d5db;padding:3px;font-size:8px;width:35px;">Durum</th><th style="border:1px solid #d1d5db;padding:3px;font-size:8px;">Öneri / Düzeltici Faaliyet</th></tr></thead><tbody>${rows}</tbody></table><div style="background:#fef2f2;border:1px solid #fecaca;padding:5px 8px;font-size:9px;font-weight:bold;color:#dc2626;text-align:right;">Toplam Tespit: ${findings.length} uygunsuzluk</div></div>`;
+}
+
+function buildPhotosHTML(photos) {
+    if (!photos || !photos.length) return '';
+    let grid = photos.map((p, i) => `<div style="display:inline-block;width:23%;margin:1%;vertical-align:top;"><img src="${p}" style="width:100%;border:1px solid #d1d5db;border-radius:3px;"><div style="text-align:center;font-size:8px;color:#666;margin-top:2px;">Foto ${i + 1}</div></div>`).join('');
+    return `<div style="page-break-inside:avoid;margin-top:14px;"><div style="background:#1e3a5f;color:white;padding:8px 12px;font-size:12px;font-weight:bold;border-radius:3px 3px 0 0;"><i class="fas fa-camera" style="margin-right:6px;"></i>UYGUNSUZLUK SAHA FOTOĞRAFLARINDAN ÖRNEKLER</div><div style="padding:8px;border:1px solid #d1d5db;border-top:none;">${grid}</div><div style="text-align:right;font-size:9px;color:#666;padding:4px 8px;border:1px solid #d1d5db;border-top:none;">Toplam ${photos.length} fotoğraf</div></div>`;
+}
+
+// ============================================================
+//  TOAST
+// ============================================================
+function showToast(msg,type='success'){
+    const c=document.getElementById('toastContainer');
+    const colors={success:'bg-green-600',error:'bg-red-600',warning:'bg-amber-600',info:'bg-blue-600'};
+    const icons={success:'fa-check-circle',error:'fa-exclamation-circle',warning:'fa-exclamation-triangle',info:'fa-info-circle'};
+    const t=document.createElement('div');
+    t.className=`toast-enter ${colors[type]} text-white px-5 py-3 rounded-xl shadow-lg flex items-center gap-3`;
+    t.innerHTML=`<i class="fas ${icons[type]} text-lg"></i><span class="text-sm font-medium flex-1">${esc(msg)}</span><button onclick="this.parentElement.remove()" class="hover:opacity-70"><i class="fas fa-times"></i></button>`;
+    c.appendChild(t);
+    setTimeout(()=>{t.classList.replace('toast-enter','toast-exit');setTimeout(()=>t.remove(),300);},3500);
+}
+
+// ============================================================
+//  MODAL
+// ============================================================
+function openModal(html){document.getElementById('modalContent').innerHTML=html;document.getElementById('modalOverlay').classList.remove('hidden');document.body.style.overflow='hidden';}
+function closeModal(){document.getElementById('modalOverlay').classList.add('hidden');document.body.style.overflow='';}
+
+// ============================================================
+//  THEME
+// ============================================================
+function toggleTheme(){const c=DB.getTheme();const n=c==='light'?'dark':'light';DB.saveTheme(n);applyTheme(n);}
+function applyTheme(t){
+    const h=document.documentElement;h.classList.toggle('dark',t==='dark');h.classList.toggle('light',t==='light');
+    const sw=document.getElementById('themeSwitch'),ic=document.getElementById('themeToggleIcon'),mi=document.getElementById('mobileThemeIcon');
+    if(sw){if(t==='dark'){sw.classList.add('dark-active');sw.className=sw.className.replace('bg-slate-600','bg-meb-accent');}else{sw.classList.remove('dark-active');sw.className=sw.className.replace('bg-meb-accent','bg-slate-600');}}
+    if(ic)ic.className=t==='dark'?'fas fa-moon text-blue-300 text-xs':'fas fa-sun text-amber-500 text-xs';
+    if(mi)mi.className=t==='dark'?'fas fa-sun text-lg':'fas fa-moon text-lg';
+}
+
+// ============================================================
+//  SIDEBAR & NAV
+// ============================================================
+let sidebarOpen=false;
+function toggleSidebar(){const s=document.getElementById('sidebar');sidebarOpen=!sidebarOpen;s.classList.toggle('-translate-x-full',!sidebarOpen);}
+function showSection(id){
+    document.querySelectorAll('.section-content').forEach(el=>el.classList.add('hidden'));
+    const t=document.getElementById('section-'+id);if(t){t.classList.remove('hidden');t.style.animation='none';t.offsetHeight;t.style.animation='';}
+    document.querySelectorAll('.nav-item').forEach(el=>{el.classList.toggle('active',el.dataset.section===id);});
+    document.querySelectorAll('.bottom-nav-btn').forEach(el=>{const a=el.dataset.section===id;el.classList.toggle('text-meb-primary',a);el.classList.toggle('dark:text-meb-accent',a);el.classList.toggle('text-gray-500',!a);el.classList.toggle('dark:text-gray-400',!a);});
+    if(sidebarOpen)toggleSidebar();
+    if(id==='schools')renderSchools();if(id==='timesheet')renderTimesheet();if(id==='audit')renderAuditSection();if(id==='reports')renderReportsSection();if(id==='settings')renderSettings();
+}
+document.addEventListener('click',e=>{if(sidebarOpen&&!document.getElementById('sidebar').contains(e.target)&&!e.target.closest('[onclick*="toggleSidebar"]'))toggleSidebar();});
+
+// ============================================================
+//  SCHOOLS
+// ============================================================
+function renderSchools(){
+    const schools=DB.getSchools(),search=(document.getElementById('schoolSearch').value||'').toLowerCase(),fc=document.getElementById('schoolFilterCategory').value,fh=document.getElementById('schoolFilterHazard').value;
+    const filtered=schools.filter(s=>(!search||s.name.toLowerCase().includes(search))&&(!fc||s.category===fc)&&(!fh||s.hazardClass===fh));
+    const list=document.getElementById('schoolList'),empty=document.getElementById('schoolEmpty');
+    if(!filtered.length){list.innerHTML='';empty.classList.remove('hidden');}
+    else{empty.classList.add('hidden');list.innerHTML=filtered.map(s=>{const hc=hazColor(s.hazardClass),ci=s.category==='sozlesmeli'?'fa-file-signature':'fa-handshake',cc=s.category==='sozlesmeli'?'amber':'green';
+        return`<div class="glass-card rounded-xl p-5 card-hover border-l-4 border-${hc}-500"><div class="flex items-start justify-between mb-3"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg bg-${hc}-100 dark:bg-${hc}-900/30 flex items-center justify-center"><i class="fas fa-school text-${hc}-600 dark:text-${hc}-400"></i></div><div><h4 class="font-bold text-sm text-gray-800 dark:text-white">${esc(s.name)}</h4><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-${cc}-100 dark:bg-${cc}-900/30 text-${cc}-700 dark:text-${cc}-300 mt-1"><i class="fas ${ci}"></i> ${catLabel(s.category)}</span></div></div><div class="flex gap-1"><button onclick="openSchoolForm('${s.id}')" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fas fa-edit text-blue-500 text-sm"></i></button><button onclick="confirmDeleteSchool('${s.id}')" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 rounded-lg transition"><i class="fas fa-trash text-red-500 text-sm"></i></button></div></div><div class="space-y-1 text-xs text-gray-600 dark:text-gray-400"><span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-${hc}-100 dark:bg-${hc}-900/30 text-${hc}-700 dark:text-${hc}-300 font-semibold"><i class="fas fa-exclamation-triangle"></i> ${hazLabel(s.hazardClass)}</span>${s.ilce?`<p><i class="fas fa-map-pin mr-1 text-gray-400"></i> ${esc(s.ilce)}</p>`:''}${s.employeeCount?`<p><i class="fas fa-users mr-1 text-gray-400"></i> ${s.employeeCount} çalışan</p>`:''}${s.address?`<p><i class="fas fa-map-marker-alt mr-1 text-gray-400"></i> ${esc(s.address)}</p>`:''}${s.category==='sozlesmeli'&&s.monthlyHours?`<p><i class="fas fa-clock mr-1 text-gray-400"></i> Aylık: ${s.monthlyHours} saat</p>`:''}</div></div>`;}).join('');}
+    document.getElementById('statTotalSchools').textContent=schools.length;
+    document.getElementById('statContractSchools').textContent=schools.filter(s=>s.category==='sozlesmeli').length;
+    document.getElementById('statGuidanceSchools').textContent=schools.filter(s=>s.category==='rehberlik').length;
+    document.getElementById('statHighHazard').textContent=schools.filter(s=>s.hazardClass==='cok-tehlikeli').length;
+}
+function openSchoolForm(editId){
+    const s=editId?DB.getSchoolById(editId):null, title=s?'Okul Düzenle':'Yeni Okul Ekle';
+    const ilceOpts = IZMIR_ILCELER.map(i=>`<option value="${i}">`).join('');
+    openModal(`<h3 class="font-bold text-xl text-meb-primary dark:text-white mb-5"><i class="fas fa-${s?'edit':'plus-circle'} mr-2 text-meb-accent"></i>${title}</h3><div class="space-y-3">
+        <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">İlçe *</label><input type="text" id="fSchIlce" list="dlIlce" value="${s?esc(s.ilce||''):''}" placeholder="İlçe yazın veya seçin..." class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"><datalist id="dlIlce">${ilceOpts}</datalist></div>
+        <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Okul / Kurum Adı *</label><input type="text" id="fSchName" value="${s?esc(s.name):''}" placeholder="Okul veya kurum adını yazın..." class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+        <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Tehlike Sınıfı</label><select id="fSchHaz" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"><option value="az-tehlikeli" ${s?.hazardClass==='az-tehlikeli'?'selected':''}>Az Tehlikeli</option><option value="tehlikeli" ${s?.hazardClass==='tehlikeli'?'selected':''}>Tehlikeli</option><option value="cok-tehlikeli" ${s?.hazardClass==='cok-tehlikeli'?'selected':''}>Çok Tehlikeli</option></select></div><div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Kategori</label><select id="fSchCat" onchange="document.getElementById('fSchHoursWrap').classList.toggle('hidden',this.value==='rehberlik')" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"><option value="sozlesmeli" ${s?.category==='sozlesmeli'?'selected':''}>Sözleşmeli</option><option value="rehberlik" ${s?.category==='rehberlik'?'selected':''}>Rehberlik</option></select></div></div>
+        <div id="fSchHoursWrap" class="${s?.category==='rehberlik'?'hidden':''}"><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Aylık Hizmet Saati</label><input type="number" id="fSchHours" value="${s?.monthlyHours||''}" min="0" step="0.5" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+        <div class="grid grid-cols-2 gap-3"><div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Çalışan Sayısı</label><input type="number" id="fSchEmp" value="${s?.employeeCount||''}" min="0" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div><div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Telefon</label><input type="text" id="fSchPhone" value="${s?esc(s.phone||''):''}" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div></div>
+        <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Adres</label><input type="text" id="fSchAddr" value="${s?esc(s.address||''):''}" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+        <div class="flex gap-3 pt-2"><button onclick="saveSchoolForm('${editId||''}')" class="flex-1 bg-meb-accent hover:bg-meb-accent-dark text-white px-4 py-2.5 rounded-xl font-semibold transition"><i class="fas fa-save mr-1"></i> ${s?'Güncelle':'Kaydet'}</button><button onclick="closeModal()" class="px-6 py-2.5 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-xl font-semibold transition">İptal</button></div></div>`);
+
+}
+function saveSchoolForm(editId){
+    const name=document.getElementById('fSchName').value.trim();if(!name){showToast('Okul adı zorunlu!','error');return;}
+    const ilce=document.getElementById('fSchIlce').value.trim();if(!ilce){showToast('İlçe zorunlu!','error');return;}
+    const data={name,ilce,hazardClass:document.getElementById('fSchHaz').value,category:document.getElementById('fSchCat').value,monthlyHours:parseFloat(document.getElementById('fSchHours').value)||0,employeeCount:parseInt(document.getElementById('fSchEmp').value)||0,address:document.getElementById('fSchAddr').value.trim(),phone:document.getElementById('fSchPhone').value.trim()};
+    if(editId){DB.updateSchool(editId,data);showToast('Okul güncellendi');}else{DB.addSchool(data);showToast('Okul eklendi');}
+    closeModal();renderSchools();
+}
+function confirmDeleteSchool(id){const s=DB.getSchoolById(id);openModal(`<div class="text-center"><div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i></div><h3 class="font-bold text-lg mb-2">"${esc(s?.name)}" silinsin mi?</h3><p class="text-sm text-gray-500 mb-6">Bu işlem geri alınamaz!</p><div class="flex gap-3"><button onclick="DB.deleteSchool('${id}');closeModal();showToast('Silindi','warning');renderSchools();" class="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-xl font-semibold">Evet, Sil</button><button onclick="closeModal()" class="flex-1 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-semibold">İptal</button></div></div>`);}
+
+// ============================================================
+//  TIMESHEET — CONSOLIDATED MONTHLY VIEW
+// ============================================================
+function initTimesheetSelectors(){
+    const now=new Date();document.getElementById('tsMonth').value=now.getMonth();
+    const ysel=document.getElementById('tsYear'),ry=document.getElementById('rptPuantajYear');
+    for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){ysel.innerHTML+=`<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}</option>`;ry.innerHTML+=`<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}</option>`;}
+    document.getElementById('rptPuantajMonth').value=now.getMonth();
+    const st=DB.getSettings();if(st.expertName)document.getElementById('tsExpert').value=st.expertName;
+}
+function renderTimesheet(){
+    const year=parseInt(document.getElementById('tsYear').value),month=parseInt(document.getElementById('tsMonth').value);
+    const entries=DB.getTimesheetsByMonth(year,month),dim=daysInMonth(year,month);
+    const tbody=document.getElementById('tsBody');let html='';let grandTotal=0;let workDays=0;const schoolSet=new Set();
+
+    for(let day=1;day<=dim;day++){
+        const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        const dow=new Date(year,month,day).getDay(),dn=DAYS_SHORT[dow],isWE=dow===0||dow===6;
+        const de=entries.filter(e=>e.date===ds),dt=de.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+        grandTotal+=dt;if(dt>0){workDays++;de.forEach(e=>schoolSet.add(e.schoolId));}
+        const rowCls=isWE?'weekend-row opacity-60':'';
+        const dtColor=dt>=6?'text-red-600 font-bold':dt>0?'text-green-600 font-bold':'text-gray-400';
+
+        if(de.length<=1){
+            const e=de[0];const sn=e?DB.getSchoolById(e.schoolId):null;
+            html+=`<tr class="${rowCls} border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                <td class="px-2 py-2 text-center font-bold text-sm border-r border-gray-100 dark:border-slate-700">${day}</td>
+                <td class="px-2 py-2 text-center text-xs text-gray-500 border-r border-gray-100 dark:border-slate-700">${dn}</td>
+                <td class="px-2 py-2 text-xs border-r border-gray-100 dark:border-slate-700">${sn?esc(sn.name):(isWE?'<span class="text-gray-400 italic">Hafta sonu</span>':'')}</td>
+                <td class="px-2 py-2 text-center font-semibold border-r border-gray-100 dark:border-slate-700">${e?e.hours:'—'}</td>
+                <td class="px-2 py-2 text-xs border-r border-gray-100 dark:border-slate-700">${e?esc(e.description||''):''}</td>
+                <td class="px-2 py-2 text-center ${dtColor} border-r border-gray-100 dark:border-slate-700">${dt>0?dt:'—'}</td>
+                <td class="px-2 py-2 text-center print:hidden">${e?`<button onclick="DB.deleteTimesheet('${e.id}');renderTimesheet();showToast('Silindi','warning')" class="text-red-500 hover:text-red-700"><i class="fas fa-trash-alt text-xs"></i></button>`:(!isWE?`<button onclick="openTimesheetEntryForDate('${ds}')" class="text-green-500 hover:text-green-700"><i class="fas fa-plus text-xs"></i></button>`:'')}</td>
+            </tr>`;
+        } else {
+            de.forEach((e,idx)=>{const sn=DB.getSchoolById(e.schoolId);
+                html+=`<tr class="${rowCls} border-b border-gray-100 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                    ${idx===0?`<td class="px-2 py-2 text-center font-bold text-sm border-r border-gray-100 dark:border-slate-700" rowspan="${de.length}">${day}</td><td class="px-2 py-2 text-center text-xs text-gray-500 border-r border-gray-100 dark:border-slate-700" rowspan="${de.length}">${dn}</td>`:''}
+                    <td class="px-2 py-2 text-xs border-r border-gray-100 dark:border-slate-700">${sn?esc(sn.name):''}</td>
+                    <td class="px-2 py-2 text-center font-semibold border-r border-gray-100 dark:border-slate-700">${e.hours}</td>
+                    <td class="px-2 py-2 text-xs border-r border-gray-100 dark:border-slate-700">${esc(e.description||'')}</td>
+                    ${idx===0?`<td class="px-2 py-2 text-center ${dtColor} border-r border-gray-100 dark:border-slate-700" rowspan="${de.length}">${dt}</td><td class="px-2 py-2 text-center print:hidden" rowspan="${de.length}"><button onclick="openTimesheetEntryForDate('${ds}')" class="text-green-500 hover:text-green-700"><i class="fas fa-plus text-xs"></i></button></td>`:''}
+                </tr>`;
+            });
+        }
+    }
+    tbody.innerHTML=html;
+    document.getElementById('tsFoot').innerHTML=`<tr class="bg-meb-primary text-white font-bold"><td colspan="3" class="px-2 py-2 text-right">TOPLAM</td><td class="px-2 py-2 text-center">${grandTotal.toFixed(1)}</td><td class="px-2 py-2">saat</td><td class="px-2 py-2"></td><td class="px-2 py-2 print:hidden"></td></tr>`;
+    document.getElementById('tsTotalHours').textContent=grandTotal.toFixed(1);
+    document.getElementById('tsTotalDays').textContent=workDays;
+    document.getElementById('tsSchoolCount').textContent=schoolSet.size;
+    document.getElementById('tsAvgHours').textContent=workDays>0?(grandTotal/workDays).toFixed(1):'0';
+}
+function openTimesheetEntry(){openTimesheetEntryForDate(null);}
+function openTimesheetEntryForDate(preDate){
+    const schools=DB.getSchools().filter(s=>s.category==='sozlesmeli');
+    if(!schools.length){showToast('Önce sözleşmeli okul ekleyin!','warning');return;}
+    const today=preDate||new Date().toISOString().split('T')[0],expert=document.getElementById('tsExpert').value||DB.getSettings().expertName||'';
+    const opts=schools.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    openModal(`<h3 class="font-bold text-xl text-meb-primary dark:text-white mb-4"><i class="fas fa-plus-circle mr-2 text-green-500"></i>Hizmet Girişi</h3>
+        <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-xl p-3 mb-4"><div class="flex items-center gap-2"><i class="fas fa-exclamation-triangle text-amber-600"></i><p class="text-xs text-amber-700 dark:text-amber-300 font-semibold">Günlük maks. 6 saat!</p></div></div>
+        <div class="space-y-3">
+            <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Okul</label><select id="fTsSch" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm">${opts}</select></div>
+            <div class="grid grid-cols-2 gap-3">
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Tarih</label><input type="date" id="fTsDate" value="${today}" onchange="checkLimit()" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+                <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Saat <span id="fTsRem" class="text-green-600 text-[10px]"></span></label><input type="number" id="fTsHrs" value="1" min="0.5" max="6" step="0.5" oninput="checkLimit()" class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm"></div>
+            </div>
+            <div id="fTsWarn" class="hidden bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-xl p-3"><div class="flex items-center gap-2"><i class="fas fa-ban text-red-600"></i><p class="text-xs text-red-700 dark:text-red-300 font-semibold" id="fTsWarnTxt"></p></div></div>
+            <div><label class="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Açıklama</label><textarea id="fTsDesc" rows="2" placeholder="Yapılan İSG hizmeti..." class="w-full px-3 py-2 bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-sm resize-y"></textarea></div>
+            <div class="flex gap-3 pt-2"><button onclick="saveTs()" id="fTsBtn" class="flex-1 bg-green-600 hover:bg-green-700 text-white px-4 py-2.5 rounded-xl font-semibold transition"><i class="fas fa-save mr-1"></i> Kaydet</button><button onclick="closeModal()" class="px-6 py-2.5 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 rounded-xl font-semibold transition">İptal</button></div>
+        </div>`);
+    setTimeout(checkLimit,100);
+}
+function checkLimit(){
+    const d=document.getElementById('fTsDate'),h=document.getElementById('fTsHrs'),w=document.getElementById('fTsWarn'),wt=document.getElementById('fTsWarnTxt'),rem=document.getElementById('fTsRem'),btn=document.getElementById('fTsBtn');
+    if(!d||!h)return;const ct=DB.getDailyTotal(d.value),hrs=parseFloat(h.value)||0,left=6-ct,nt=ct+hrs;
+    if(rem){rem.textContent=`(Kalan: ${left.toFixed(1)}s)`;rem.className=left<=1?'text-red-600 text-[10px] font-bold':'text-green-600 text-[10px]';}
+    if(nt>6){w.classList.remove('hidden');wt.textContent=`Limit aşılıyor! ${ct}s + ${hrs}s = ${nt}s (Max: 6s)`;btn.disabled=true;btn.classList.add('opacity-50','cursor-not-allowed');}
+    else{w.classList.add('hidden');btn.disabled=false;btn.classList.remove('opacity-50','cursor-not-allowed');}
+}
+function saveTs(){
+    const sid=document.getElementById('fTsSch').value,date=document.getElementById('fTsDate').value,hrs=parseFloat(document.getElementById('fTsHrs').value),desc=document.getElementById('fTsDesc').value.trim(),exp=document.getElementById('tsExpert').value.trim();
+    if(!sid||!date||!hrs){showToast('Tüm alanları doldurun!','error');return;}
+    if(DB.getDailyTotal(date)+hrs>6){showToast('6 saat limiti aşılamaz!','error');return;}
+    DB.addTimesheet({schoolId:sid,date,hours:hrs,description:desc,expertName:exp});closeModal();showToast('Kayıt eklendi');renderTimesheet();
+}
+
+// ============================================================
+//  AUDIT SECTION — CHECKLIST-BASED FORM
+// ============================================================
+function renderAuditSection(){
+    populateAuditSelects();renderFacilityGrid();renderChecklistUI();renderAuditRecords();
+    const st=DB.getSettings();
+    if(st.expertName&&!document.getElementById('auditExpert').value)document.getElementById('auditExpert').value=st.expertName;
+    if(st.expertName&&!document.getElementById('guidanceExpert').value)document.getElementById('guidanceExpert').value=st.expertName;
+    if(!document.getElementById('auditDate').value)document.getElementById('auditDate').value=new Date().toISOString().split('T')[0];
+    if(!document.getElementById('guidanceDate').value)document.getElementById('guidanceDate').value=new Date().toISOString().split('T')[0];
+}
+function populateAuditSelects(){
+    const schools=DB.getSchools();
+    document.getElementById('auditSchool').innerHTML='<option value="">Okul seçin...</option>'+schools.map(s=>`<option value="${s.id}">${esc(s.name)} (${catLabel(s.category)})</option>`).join('');
+    const reh=schools.filter(s=>s.category==='rehberlik');
+    document.getElementById('guidanceSchool').innerHTML='<option value="">Okul seçin...</option>'+reh.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+}
+function onAuditSchoolChange(){
+    const sid=document.getElementById('auditSchool').value;if(!sid)return;
+    const s=DB.getSchoolById(sid);if(s&&s.employeeCount){document.getElementById('empKadrolu').value=s.employeeCount;}
+}
+function renderFacilityGrid(){
+    const grid=document.getElementById('facilityGrid');
+    grid.innerHTML=FACILITIES.map((f,i)=>`<div class="flex items-center gap-2 bg-gray-50 dark:bg-slate-800 rounded-lg px-3 py-2">
+        <input type="checkbox" id="fac_${i}" class="w-4 h-4 text-meb-accent rounded border-gray-300 focus:ring-meb-accent">
+        <label for="fac_${i}" class="text-xs text-gray-700 dark:text-gray-300 cursor-pointer">${esc(f)}</label>
+    </div>`).join('');
+}
+function renderChecklistUI(){
+    const container=document.getElementById('checklistContainer');
+    container.innerHTML=CHECKLIST.map((cat,ci)=>`
+        <div class="checklist-section bg-gray-50 dark:bg-slate-800 rounded-xl overflow-hidden" id="clSec_${ci}">
+            <button onclick="toggleChecklist(${ci})" class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-100 dark:hover:bg-slate-700 transition text-left">
+                <div class="flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-lg bg-meb-primary flex items-center justify-center text-white text-xs font-bold">${ci+1}</span>
+                    <span class="font-bold text-sm text-meb-primary dark:text-white">${esc(cat.title)}</span>
+                    <span class="text-[10px] text-gray-400">(${cat.items.length} madde)</span>
+                </div>
+                <i class="fas fa-chevron-down text-gray-400 transition" id="clIcon_${ci}"></i>
+            </button>
+            <div class="checklist-body border-t border-gray-200 dark:border-slate-600">
+                <table class="w-full text-sm">
+                    <thead><tr class="bg-gray-100 dark:bg-slate-700"><th class="px-3 py-2 text-left text-xs text-gray-600 dark:text-gray-400 w-10">No</th><th class="px-3 py-2 text-left text-xs text-gray-600 dark:text-gray-400">Kontrol Maddesi</th><th class="px-3 py-2 text-center text-xs w-16">EVET</th><th class="px-3 py-2 text-center text-xs w-16">HAYIR</th></tr></thead>
+                    <tbody>${cat.items.map((item,ii)=>`<tr class="border-b border-gray-100 dark:border-slate-700">
+                        <td class="px-3 py-2 text-center font-bold text-xs text-gray-400">${ii+1}</td>
+                        <td class="px-3 py-2 text-xs text-gray-700 dark:text-gray-300">${esc(item)}</td>
+                        <td class="px-3 py-1 text-center"><button onclick="setCL(${ci},${ii},'evet')" id="cl_${ci}_${ii}_e" class="toggle-btn w-10 h-8 rounded-lg text-xs font-bold border border-gray-300 dark:border-slate-600 hover:border-green-400 transition">E</button></td>
+                        <td class="px-3 py-1 text-center"><button onclick="setCL(${ci},${ii},'hayir')" id="cl_${ci}_${ii}_h" class="toggle-btn w-10 h-8 rounded-lg text-xs font-bold border border-gray-300 dark:border-slate-600 hover:border-red-400 transition">H</button></td>
+                    </tr>`).join('')}</tbody>
+                </table>
+            </div>
+        </div>
+    `).join('');
+}
+function toggleChecklist(ci){
+    const sec=document.getElementById('clSec_'+ci),icon=document.getElementById('clIcon_'+ci);
+    sec.classList.toggle('open');icon.classList.toggle('rotate-180');
+}
+// Checklist state storage
+let checklistState={};
+function setCL(ci,ii,val){
+    const key=`${ci}_${ii}`;checklistState[key]=val;
+    const eBtn=document.getElementById(`cl_${ci}_${ii}_e`),hBtn=document.getElementById(`cl_${ci}_${ii}_h`);
+    eBtn.className='toggle-btn w-10 h-8 rounded-lg text-xs font-bold border transition '+(val==='evet'?'active-yes border-green-500':'border-gray-300 dark:border-slate-600 hover:border-green-400');
+    hBtn.className='toggle-btn w-10 h-8 rounded-lg text-xs font-bold border transition '+(val==='hayir'?'active-no border-red-500':'border-gray-300 dark:border-slate-600 hover:border-red-400');
+}
+function getChecklistData(){
+    const data={};CHECKLIST.forEach((cat,ci)=>{data[cat.id]=cat.items.map((_,ii)=>checklistState[`${ci}_${ii}`]||null);});return data;
+}
+function getFacilityData(){
+    const data={};FACILITIES.forEach((f,i)=>{data[f]=document.getElementById('fac_'+i)?.checked||false;});return data;
+}
+function getEmployeeData(){
+    return{kadrolu:+document.getElementById('empKadrolu').value||0,gorevlendirme:+document.getElementById('empGorev').value||0,ucretli:+document.getElementById('empUcretli').value||0,isci:+document.getElementById('empIsci').value||0,typ:+document.getElementById('empTyp').value||0,diger:+document.getElementById('empDiger').value||0};
+}
+
+function showAuditTab(tid){
+    ['denetim','rehberlik','bos-denetim','bos-rehberlik','kayitlar'].forEach(t=>{
+        const el=document.getElementById('auditTab-'+t);if(el)el.classList.add('hidden');
+        const btnMap={'denetim':'tabDenetim','rehberlik':'tabRehberlik','bos-denetim':'tabBosDenetim','bos-rehberlik':'tabBosRehberlik','kayitlar':'tabKayitlar'};
+        const btn=document.getElementById(btnMap[t]);if(btn){btn.classList.remove('bg-meb-primary','text-white','shadow');btn.classList.add('bg-gray-200','dark:bg-slate-700','text-gray-700','dark:text-gray-300');}
+    });
+    const el=document.getElementById('auditTab-'+tid);if(el)el.classList.remove('hidden');
+    const btnMap2={'denetim':'tabDenetim','rehberlik':'tabRehberlik','bos-denetim':'tabBosDenetim','bos-rehberlik':'tabBosRehberlik','kayitlar':'tabKayitlar'};
+    const btn=document.getElementById(btnMap2[tid]);if(btn){btn.classList.remove('bg-gray-200','dark:bg-slate-700','text-gray-700','dark:text-gray-300');btn.classList.add('bg-meb-primary','text-white','shadow');}
+    if(tid==='kayitlar')renderAuditRecords();
+}
+
+function saveAudit(){
+    const sid=document.getElementById('auditSchool').value;if(!sid){showToast('Okul seçin!','error');return;}
+    const audit={schoolId:sid,date:document.getElementById('auditDate').value,expertName:document.getElementById('auditExpert').value.trim(),iveren:document.getElementById('auditIveren').value.trim(),employees:getEmployeeData(),facilities:getFacilityData(),checklist:getChecklistData(),evaluation:document.getElementById('auditEvaluation').value.trim(),otherRec:document.getElementById('auditOtherRec').value.trim(),photos:auditPhotos.slice(),type:'denetim'};
+    DB.addAudit(audit);showToast('Denetim kaydı oluşturuldu');renderAuditRecords();clearAllPhotos();checklistState={};renderChecklistUI();renderFacilityGrid();
+}
+function saveGuidance(){
+    const sid=document.getElementById('guidanceSchool').value;if(!sid){showToast('Okul seçin!','error');return;}
+    const g={schoolId:sid,date:document.getElementById('guidanceDate').value,expertName:document.getElementById('guidanceExpert').value.trim(),observations:document.getElementById('guidanceObservations').value.trim(),recommendations:document.getElementById('guidanceRecommendations').value.trim(),nextVisitDate:document.getElementById('guidanceNextDate').value,type:'rehberlik'};
+    DB.addGuidance(g);showToast('Rehberlik kaydı oluşturuldu');renderAuditRecords();
+}
+function renderAuditRecords(){
+    const audits=DB.getAudits(),guidances=DB.getGuidances(),container=document.getElementById('auditRecordsList'),empty=document.getElementById('auditRecordsEmpty');
+    const all=[...audits.map(a=>({...a,rt:'denetim'})),...guidances.map(g=>({...g,rt:'rehberlik'}))].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    if(!all.length){container.innerHTML='';empty.classList.remove('hidden');return;}
+    empty.classList.add('hidden');
+    container.innerHTML=all.map(r=>{const s=DB.getSchoolById(r.schoolId);const isD=r.rt==='denetim';const col=isD?'blue':'teal';
+        return`<div class="flex items-center gap-4 bg-gray-50 dark:bg-slate-800 rounded-xl p-4 card-hover"><div class="w-10 h-10 rounded-lg bg-${col}-100 dark:bg-${col}-900/30 flex items-center justify-center flex-shrink-0"><i class="fas fa-${isD?'search-plus':'hands-helping'} text-${col}-600 dark:text-${col}-400"></i></div><div class="flex-1 min-w-0"><div class="flex items-center gap-2 flex-wrap"><span class="font-semibold text-sm text-gray-800 dark:text-white">${s?esc(s.name):'Bilinmeyen'}</span><span class="px-2 py-0.5 bg-${col}-100 dark:bg-${col}-900/30 text-${col}-700 dark:text-${col}-300 text-xs rounded-full font-semibold">${isD?'Denetim':'Rehberlik'}</span></div><p class="text-xs text-gray-500 mt-0.5">${fmtDate(r.date)}</p></div><div class="flex gap-1"><button onclick="genRecordPDF('${r.id}','${r.rt}')" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"><i class="fas fa-file-pdf text-red-500 text-sm"></i></button><button onclick="delRecord('${r.id}','${r.rt}')" class="p-2 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"><i class="fas fa-trash text-red-500 text-sm"></i></button></div></div>`;
+    }).join('');
+}
+function delRecord(id,type){if(type==='denetim')DB.deleteAudit(id);else DB.deleteGuidance(id);showToast('Silindi','warning');renderAuditRecords();}
+
+// ============================================================
+//  PDF GENERATION
+// ============================================================
+function pdfHeader(title,sub=''){const st=DB.getSettings();return`<div style="text-align:center;border-bottom:3px solid #1e3a5f;padding-bottom:12px;margin-bottom:15px;"><div style="font-size:11px;color:#1e3a5f;font-weight:bold;">T.C. MİLLÎ EĞİTİM BAKANLIĞI</div><div style="font-size:13px;color:#1e3a5f;font-weight:bold;">${esc(st.memName||'İl Millî Eğitim Müdürlüğü')}</div><div style="font-size:16px;font-weight:bold;color:#1e3a5f;margin-top:8px;border:2px solid #1e3a5f;display:inline-block;padding:5px 18px;border-radius:4px;">${esc(title)}</div>${sub?`<div style="font-size:10px;color:#666;margin-top:4px;">${esc(sub)}</div>`:''}</div>`;}
+function pdfSignature(expert,iveren){return`<div style="border-top:2px solid #1e3a5f;margin-top:25px;padding-top:12px;display:flex;justify-content:space-between;font-size:10px;"><div><strong>Raporu Hazırlayan (İSG Uzmanı):</strong><br>${esc(expert||'_______________')}<br><br><strong>İmza:</strong> _______________</div><div style="text-align:right;"><strong>İşveren/İşveren Vekili:</strong><br>${esc(iveren||'_______________')}<br><br><strong>İmza:</strong> _______________</div></div><div style="text-align:center;font-size:10px;color:#666;margin-top:8px;">Rapor Tarihi: ${fmtDate(new Date().toISOString().split('T')[0])}</div>`;}
+
+function downloadPDF(el,fn){
+    html2pdf().set({margin:[8,8,8,8],filename:fn,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},pagebreak:{mode:['avoid-all','css','legacy']}}).from(el).save().then(()=>showToast('PDF indirildi')).catch(e=>showToast('Hata: '+e.message,'error'));
+}
+function downloadPDFLandscape(el,fn){
+    html2pdf().set({margin:[6,6,6,6],filename:fn,image:{type:'jpeg',quality:0.98},html2canvas:{scale:2,useCORS:true},jsPDF:{unit:'mm',format:'a4',orientation:'landscape'},pagebreak:{mode:['avoid-all','css','legacy']}}).from(el).save().then(()=>showToast('PDF indirildi')).catch(e=>showToast('Hata: '+e.message,'error'));
+}
+
+function generateTimesheetPDF(){_genTsPDF(parseInt(document.getElementById('tsMonth').value),parseInt(document.getElementById('tsYear').value));}
+function generateTimesheetPDFFromReport(){_genTsPDF(parseInt(document.getElementById('rptPuantajMonth').value),parseInt(document.getElementById('rptPuantajYear').value));}
+function _genTsPDF(month,year){
+    const entries=DB.getTimesheetsByMonth(year,month),dim=daysInMonth(year,month),st=DB.getSettings();
+    let gt=0,workDays=0;const schoolSet=new Set();
+    // Build rows with compact styling for landscape single-page
+    let rows='';
+    for(let d=1;d<=dim;d++){
+        const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dow=new Date(year,month,d).getDay(),dn=DAYS_SHORT[dow],isWE=dow===0||dow===6;
+        const de=entries.filter(e=>e.date===ds),dt=de.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+        gt+=dt;if(dt>0){workDays++;de.forEach(e=>schoolSet.add(e.schoolId));}
+        const bg=isWE?'#eef2f7':(dt>0?'#edf7ee':'#fff');
+        const sn=de.map(e=>{const s=DB.getSchoolById(e.schoolId);return s?s.name:'';}).join(', ');
+        const desc=de.map(e=>e.description||'').filter(Boolean).join('; ');
+        rows+=`<tr style="background:${bg};line-height:1.1;"><td style="border:1px solid #bbb;padding:1px 3px;text-align:center;font-size:8px;font-weight:bold;">${d}</td><td style="border:1px solid #bbb;padding:1px 3px;text-align:center;font-size:7px;">${dn}</td><td style="border:1px solid #bbb;padding:1px 3px;font-size:7px;white-space:nowrap;overflow:hidden;max-width:120px;">${esc(sn)||''}</td><td style="border:1px solid #bbb;padding:1px 3px;text-align:center;font-size:8px;font-weight:bold;color:${dt>0?'#16a34a':'#aaa'};">${dt>0?dt:''}</td><td style="border:1px solid #bbb;padding:1px 3px;font-size:7px;">${esc(desc)||''}</td></tr>`;
+    }
+    const c=document.getElementById('pdfRenderArea');
+    c.style.width='285mm'; // Landscape A4 content width
+    c.innerHTML=`<div class="pdf-area" style="padding:8px;font-family:Inter,sans-serif;color:#1a1a1a;">
+        <div style="text-align:center;border-bottom:2px solid #1e3a5f;padding-bottom:6px;margin-bottom:6px;">
+            <div style="font-size:9px;color:#1e3a5f;font-weight:bold;">T.C. MİLLÎ EĞİTİM BAKANLIĞI</div>
+            <div style="font-size:10px;color:#1e3a5f;font-weight:bold;">${esc(st.memName||'İl Millî Eğitim Müdürlüğü')}</div>
+            <div style="font-size:13px;font-weight:bold;color:#1e3a5f;margin-top:4px;">AYLIK İSG HİZMETİ PUANTAJ CETVELİ</div>
+            <div style="font-size:9px;color:#555;margin-top:2px;">${MONTHS_TR[month]} ${year}</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:5px;font-size:8px;">
+            <div><strong>İSG Uzmanı:</strong> ${esc(st.expertName||'—')} <span style="margin-left:12px;"><strong>Unvan:</strong> ${esc(st.expertTitle||'')}</span></div>
+            <div><strong>İlçe:</strong> ${esc(st.ilce||'—')} <span style="margin-left:12px;"><strong>Toplam Okul:</strong> ${schoolSet.size}</span> <span style="margin-left:12px;"><strong>Hizmet Günü:</strong> ${workDays}</span> <span style="margin-left:12px;"><strong>Toplam Saat:</strong> <span style="color:#16a34a;font-weight:bold;">${gt.toFixed(1)}</span></span></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#1e3a5f;color:white;">
+                <th style="border:1px solid #1e3a5f;padding:2px 4px;font-size:8px;width:22px;">Gün</th>
+                <th style="border:1px solid #1e3a5f;padding:2px 4px;font-size:8px;width:22px;">Gün</th>
+                <th style="border:1px solid #1e3a5f;padding:2px 4px;font-size:8px;min-width:100px;">Okul / Kurum Adı</th>
+                <th style="border:1px solid #1e3a5f;padding:2px 4px;font-size:8px;width:28px;">Saat</th>
+                <th style="border:1px solid #1e3a5f;padding:2px 4px;font-size:8px;">Yapılan İSG Hizmeti / Açıklama</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr style="background:#1e3a5f;color:white;">
+                <td colspan="3" style="border:1px solid #1e3a5f;padding:2px 4px;font-size:9px;font-weight:bold;text-align:right;">GENEL TOPLAM</td>
+                <td style="border:1px solid #1e3a5f;padding:2px 4px;font-size:10px;font-weight:bold;text-align:center;">${gt.toFixed(1)}</td>
+                <td style="border:1px solid #1e3a5f;padding:2px 4px;font-size:8px;">saat (${workDays} iş günü)</td>
+            </tr></tfoot>
+        </table>
+        <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:8px;border-top:1px solid #1e3a5f;padding-top:8px;">
+            <div style="text-align:center;width:200px;"><strong>Raporu Hazırlayan (İSG Uzmanı)</strong><br><br>${esc(st.expertName||'_______________')}<br><br>İmza: _______________</div>
+            <div style="text-align:center;"><strong>Tarih:</strong> ${fmtDate(new Date().toISOString().split('T')[0])}</div>
+            <div style="text-align:center;width:200px;"><strong>Onaylayan (İlçe MEM Müdürü)</strong><br><br>_______________<br><br>İmza: _______________</div>
+        </div>
+    </div>`;
+    downloadPDFLandscape(c.firstElementChild,`Puantaj_${MONTHS_TR[month]}_${year}.pdf`);
+    setTimeout(()=>{c.style.width='210mm';},1000); // Reset width after PDF
+}
+
+function generateAuditPDF(){_buildAuditPDF(collectAuditFormData());}
+function collectAuditFormData(){
+    const sid=document.getElementById('auditSchool').value;if(!sid){showToast('Okul seçin!','error');return null;}
+    return{schoolId:sid,date:document.getElementById('auditDate').value,expertName:document.getElementById('auditExpert').value.trim(),iveren:document.getElementById('auditIveren').value.trim(),employees:getEmployeeData(),facilities:getFacilityData(),checklist:getChecklistData(),evaluation:document.getElementById('auditEvaluation').value.trim(),otherRec:document.getElementById('auditOtherRec').value.trim(),photos:auditPhotos.slice()};
+}
+function _buildAuditPDF(data){
+    if(!data)return;const school=DB.getSchoolById(data.schoolId);const st=DB.getSettings();
+    const emp=data.employees;const empTotal=(emp.kadrolu||0)+(emp.gorevlendirme||0)+(emp.ucretli||0)+(emp.isci||0)+(emp.typ||0)+(emp.diger||0);
+    // Facilities table
+    let facRows='';const facs=Object.entries(data.facilities||{});
+    for(let i=0;i<facs.length;i+=2){
+        const [f1,v1]=facs[i],f2=facs[i+1];
+        facRows+=`<tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">${esc(f1)}</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;font-weight:bold;color:${v1?'#16a34a':'#dc2626'}">${v1?'Var':'Yok'}</td>${f2?`<td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">${esc(f2[0])}</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;font-weight:bold;color:${f2[1]?'#16a34a':'#dc2626'}">${f2[1]?'Var':'Yok'}</td>`:'<td style="border:1px solid #d1d5db;"></td><td style="border:1px solid #d1d5db;"></td>'}</tr>`;
+    }
+    // Checklist tables
+    let clHtml='';
+    CHECKLIST.forEach(cat=>{
+        const answers=data.checklist?.[cat.id]||[];
+        let hayirCount=answers.filter(a=>a==='hayir').length;
+        clHtml+=`<div style="margin-bottom:10px;page-break-inside:avoid;"><div style="background:#1e3a5f;color:white;padding:6px 10px;font-size:11px;font-weight:bold;border-radius:3px 3px 0 0;">${esc(cat.title)}</div><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;"><th style="border:1px solid #d1d5db;padding:3px;font-size:9px;width:25px;">No</th><th style="border:1px solid #d1d5db;padding:3px;font-size:9px;text-align:left;">Kontrol Maddesi</th><th style="border:1px solid #d1d5db;padding:3px;font-size:9px;width:35px;text-align:center;">EVET</th><th style="border:1px solid #d1d5db;padding:3px;font-size:9px;width:35px;text-align:center;">HAYIR</th></tr></thead><tbody>`;
+        cat.items.forEach((item,ii)=>{
+            const ans=answers[ii];
+            clHtml+=`<tr><td style="border:1px solid #d1d5db;padding:2px 4px;text-align:center;font-size:9px;">${ii+1}</td><td style="border:1px solid #d1d5db;padding:2px 4px;font-size:9px;">${esc(item)}</td><td style="border:1px solid #d1d5db;padding:2px 4px;text-align:center;font-size:10px;">${ans==='evet'?'<span style="color:#16a34a;font-weight:bold;">✓</span>':''}</td><td style="border:1px solid #d1d5db;padding:2px 4px;text-align:center;font-size:10px;">${ans==='hayir'?'<span style="color:#dc2626;font-weight:bold;">✗</span>':''}</td></tr>`;
+        });
+        clHtml+=`</tbody></table></div>`;
+    });
+
+    const c=document.getElementById('pdfRenderArea');
+    c.innerHTML=`<div class="pdf-area" style="padding:15px;font-family:Inter,sans-serif;color:#1a1a1a;">
+        ${pdfHeader('OKUL-KURUM SAHA ZİYARET FORMU','İş Sağlığı ve Güvenliği Denetim Raporu')}
+        <div style="font-size:11px;font-weight:bold;color:#1e3a5f;margin-bottom:8px;">1. GENEL BİLGİLER</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><tbody>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;width:30%;">Ziyaret Tarihi</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${fmtDate(data.date)}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">İşyeri (Okul) Adı</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${esc(school?.name||'')}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Tehlike Sınıfı</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${hazLabel(school?.hazardClass||'')}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Adres</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${esc(school?.address||'')}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Telefon</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${esc(school?.phone||'')}</td></tr>
+        </tbody></table>
+        <div style="font-size:11px;font-weight:bold;color:#1e3a5f;margin-bottom:8px;">2. ÇALIŞAN SAYILARI</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><thead><tr style="background:#f8fafc;"><th style="border:1px solid #d1d5db;padding:4px;font-size:9px;">Kategori</th><th style="border:1px solid #d1d5db;padding:4px;font-size:9px;">Sayı</th></tr></thead><tbody>
+            <tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">657 Kadrolu</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${emp.kadrolu}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">657 Görevlendirme</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${emp.gorevlendirme}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">Ücretli Öğretmen</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${emp.ucretli}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">Daimi/Geçici İşçi</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${emp.isci}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">TYP/ÇUP</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${emp.typ}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">Diğer</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${emp.diger}</td></tr>
+            <tr style="background:#f8fafc;font-weight:bold;"><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">Toplam</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;text-align:center;">${empTotal}</td></tr>
+        </tbody></table>
+        <div style="font-size:11px;font-weight:bold;color:#1e3a5f;margin-bottom:8px;">OKUL TESİSLERİ</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><tbody>${facRows}</tbody></table>
+        <div style="font-size:11px;font-weight:bold;color:#1e3a5f;margin-bottom:8px;">KONTROL LİSTESİ</div>
+        ${clHtml}
+        ${buildAutoRecommendationsHTML(data)}
+        <div style="page-break-inside:avoid;">
+            <div style="font-size:11px;font-weight:bold;color:#1e3a5f;margin:12px 0 8px;">5. DEĞERLENDİRME VE ÖNERİLER</div>
+            <div style="border:1px solid #d1d5db;padding:10px;min-height:60px;font-size:10px;line-height:1.5;white-space:pre-wrap;">${esc(data.evaluation||'')}</div>
+            <div style="font-size:11px;font-weight:bold;color:#1e3a5f;margin:12px 0 8px;">6. DİĞER ÖNERİLER</div>
+            <div style="border:1px solid #d1d5db;padding:10px;min-height:40px;font-size:10px;line-height:1.5;white-space:pre-wrap;">${esc(data.otherRec||'')}</div>
+        </div>
+        ${buildPhotosHTML(data.photos)}
+        <div style="border:1px solid #d1d5db;padding:10px;margin-top:12px;font-size:9px;color:#666;line-height:1.4;background:#fefce8;"><strong>NOT:</strong> Yukarıda belirtilen eğitim kurumunun iş sağlığı ve güvenliği açısından rehberlik amaçlı saha gözetim ziyareti neticesinde işyeri saha değerlendirmesi yapılmıştır. Yapılan saha gözetimi bulguları, örnekleme usulü ile belirtilen tarihe dair durum tespiti olduğundan, tüm alanları ve sonrasında değişecek durumları içermez. Belirtilen hususlar risk analizi sayılamayacağı gibi iyileştirme alanları buradaki tespitlerle de sınırlı olduğu anlamına gelmez. (6331 sayılı İş Sağlığı ve Güvenliği Kanunu gereğince 01.01.2025 tarihi itibariyle tüm işyerlerinde işveren tarafından İSG hizmeti sunumu zorunluluğunun başladığı hususu hatırlatılmıştır.)</div>
+        ${pdfSignature(data.expertName,data.iveren)}
+    </div>`;
+    downloadPDF(c.firstElementChild,`Denetim_${school?.name||'Rapor'}_${fmtDate(data.date)}.pdf`);
+}
+
+function generateEmptyAuditPDF(){
+    const bl='<div style="border-bottom:1px solid #d1d5db;height:20px;"></div>';const bls=n=>Array(n).fill(bl).join('');
+    let clHtml='';CHECKLIST.forEach(cat=>{
+        clHtml+=`<div style="margin-bottom:8px;page-break-inside:avoid;"><div style="background:#1e3a5f;color:white;padding:5px 10px;font-size:10px;font-weight:bold;">${esc(cat.title)}</div><table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#f8fafc;"><th style="border:1px solid #d1d5db;padding:2px;font-size:8px;width:20px;">No</th><th style="border:1px solid #d1d5db;padding:2px;font-size:8px;">Kontrol Maddesi</th><th style="border:1px solid #d1d5db;padding:2px;font-size:8px;width:30px;">EVET</th><th style="border:1px solid #d1d5db;padding:2px;font-size:8px;width:30px;">HAYIR</th></tr></thead><tbody>`;
+        cat.items.forEach((item,ii)=>{clHtml+=`<tr><td style="border:1px solid #d1d5db;padding:2px 3px;text-align:center;font-size:8px;">${ii+1}</td><td style="border:1px solid #d1d5db;padding:2px 3px;font-size:8px;">${esc(item)}</td><td style="border:1px solid #d1d5db;padding:2px;text-align:center;">☐</td><td style="border:1px solid #d1d5db;padding:2px;text-align:center;">☐</td></tr>`;});
+        clHtml+=`</tbody></table></div>`;
+    });
+    const c=document.getElementById('pdfRenderArea');
+    c.innerHTML=`<div class="pdf-area" style="padding:12px;font-family:Inter,sans-serif;color:#1a1a1a;">${pdfHeader('OKUL-KURUM SAHA ZİYARET FORMU','Boş Form — Sahada Elle Doldurulmak Üzere')}
+        <div style="font-size:10px;font-weight:bold;color:#1e3a5f;margin-bottom:6px;">1. GENEL BİLGİLER</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:10px;"><tbody><tr><td style="border:1px solid #d1d5db;padding:4px 6px;background:#f8fafc;font-weight:bold;font-size:9px;width:30%;">Ziyaret Tarihi</td><td style="border:1px solid #d1d5db;padding:4px;">&nbsp;</td></tr><tr><td style="border:1px solid #d1d5db;padding:4px 6px;background:#f8fafc;font-weight:bold;font-size:9px;">İşyeri (Okul) Adı</td><td style="border:1px solid #d1d5db;padding:4px;">&nbsp;</td></tr><tr><td style="border:1px solid #d1d5db;padding:4px 6px;background:#f8fafc;font-weight:bold;font-size:9px;">Tehlike Sınıfı</td><td style="border:1px solid #d1d5db;padding:4px;font-size:9px;">☐ Az Tehlikeli &nbsp;&nbsp; ☐ Tehlikeli &nbsp;&nbsp; ☐ Çok Tehlikeli</td></tr><tr><td style="border:1px solid #d1d5db;padding:4px 6px;background:#f8fafc;font-weight:bold;font-size:9px;">Adres</td><td style="border:1px solid #d1d5db;padding:4px;">&nbsp;</td></tr><tr><td style="border:1px solid #d1d5db;padding:4px 6px;background:#f8fafc;font-weight:bold;font-size:9px;">Telefon</td><td style="border:1px solid #d1d5db;padding:4px;">&nbsp;</td></tr></tbody></table>
+        <div style="font-size:10px;font-weight:bold;color:#1e3a5f;margin-bottom:6px;">KONTROL LİSTESİ</div>${clHtml}
+        <div style="font-size:10px;font-weight:bold;color:#1e3a5f;margin:10px 0 6px;">5. DEĞERLENDİRME VE ÖNERİLER</div><div style="border:1px solid #d1d5db;padding:8px;">${bls(6)}</div>
+        <div style="font-size:10px;font-weight:bold;color:#1e3a5f;margin:10px 0 6px;">6. DİĞER ÖNERİLER</div><div style="border:1px solid #d1d5db;padding:8px;">${bls(3)}</div>
+        <div style="border-top:2px solid #1e3a5f;margin-top:15px;padding-top:10px;display:flex;justify-content:space-between;font-size:9px;"><div><strong>İSG Uzmanı:</strong> _______________<br><strong>İmza:</strong> _______________</div><div style="text-align:right;"><strong>İşveren Vekili:</strong> _______________<br><strong>İmza:</strong> _______________</div></div>
+    </div>`;
+    downloadPDF(c.firstElementChild,'Bos_Denetim_Formu.pdf');
+}
+
+function generateGuidancePDF(){
+    const sid=document.getElementById('guidanceSchool').value;if(!sid){showToast('Okul seçin!','error');return;}
+    const school=DB.getSchoolById(sid),st=DB.getSettings();
+    const c=document.getElementById('pdfRenderArea');
+    c.innerHTML=`<div class="pdf-area" style="padding:15px;font-family:Inter,sans-serif;color:#1a1a1a;">${pdfHeader('REHBERLİK ZİYARET DÖKÜMANI','Saha Gözlem & Tavsiye Formu')}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:15px;"><tbody><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;width:30%;">Okul Adı</td><td style="border:1px solid #d1d5db;padding:6px;font-size:10px;">${esc(school?.name||'')}</td></tr><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;">Ziyaret Tarihi</td><td style="border:1px solid #d1d5db;padding:6px;font-size:10px;">${fmtDate(document.getElementById('guidanceDate').value)}</td></tr><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;">Sonraki Ziyaret</td><td style="border:1px solid #d1d5db;padding:6px;font-size:10px;">${fmtDate(document.getElementById('guidanceNextDate').value)}</td></tr></tbody></table>
+        <div style="margin-bottom:15px;"><div style="background:#0d9488;color:white;padding:6px 10px;font-size:11px;font-weight:bold;border-radius:3px 3px 0 0;">SAHA GÖZLEMLERİ</div><div style="border:1px solid #d1d5db;border-top:none;padding:10px;min-height:60px;font-size:10px;white-space:pre-wrap;">${esc(document.getElementById('guidanceObservations').value||'—')}</div></div>
+        <div style="margin-bottom:15px;"><div style="background:#0d9488;color:white;padding:6px 10px;font-size:11px;font-weight:bold;border-radius:3px 3px 0 0;">TAVSİYE VE ÖNERİLER</div><div style="border:1px solid #d1d5db;border-top:none;padding:10px;min-height:60px;font-size:10px;white-space:pre-wrap;">${esc(document.getElementById('guidanceRecommendations').value||'—')}</div></div>
+        ${pdfSignature(document.getElementById('guidanceExpert').value,'')}</div>`;
+    downloadPDF(c.firstElementChild,`Rehberlik_${school?.name||'Rapor'}.pdf`);
+}
+function generateEmptyGuidancePDF(){
+    const bl='<div style="border-bottom:1px solid #d1d5db;height:20px;"></div>';const bls=n=>Array(n).fill(bl).join('');
+    const c=document.getElementById('pdfRenderArea');
+    c.innerHTML=`<div class="pdf-area" style="padding:15px;font-family:Inter,sans-serif;color:#1a1a1a;">${pdfHeader('BOŞ REHBERLİK ZİYARET FORMU','Sahada Elle Doldurulmak Üzere')}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:15px;"><tbody><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;width:30%;">Okul Adı</td><td style="border:1px solid #d1d5db;padding:6px;">&nbsp;</td></tr><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;">Ziyaret Tarihi</td><td style="border:1px solid #d1d5db;padding:6px;">&nbsp;</td></tr><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;">Sonraki Ziyaret</td><td style="border:1px solid #d1d5db;padding:6px;">&nbsp;</td></tr></tbody></table>
+        <div style="margin-bottom:15px;"><div style="background:#0d9488;color:white;padding:6px 10px;font-size:11px;font-weight:bold;">SAHA GÖZLEMLERİ</div><div style="border:1px solid #d1d5db;border-top:none;padding:10px;">${bls(8)}</div></div>
+        <div style="margin-bottom:15px;"><div style="background:#0d9488;color:white;padding:6px 10px;font-size:11px;font-weight:bold;">TAVSİYE VE ÖNERİLER</div><div style="border:1px solid #d1d5db;border-top:none;padding:10px;">${bls(8)}</div></div>
+        <div style="border-top:2px solid #1e3a5f;margin-top:20px;padding-top:10px;display:flex;justify-content:space-between;font-size:9px;"><div><strong>İSG Uzmanı:</strong> _______________<br><strong>İmza:</strong> _______________</div><div style="text-align:right;"><strong>Tarih:</strong> ___/___/________<br><strong>İmza:</strong> _______________</div></div></div>`;
+    downloadPDF(c.firstElementChild,'Bos_Rehberlik_Formu.pdf');
+}
+
+function genRecordPDF(id,type){
+    if(type==='denetim'){const a=DB.getAudits().find(x=>x.id===id);if(a)_buildAuditPDF(a);}
+    else{const g=DB.getGuidances().find(x=>x.id===id);if(!g)return;const school=DB.getSchoolById(g.schoolId);
+        const c=document.getElementById('pdfRenderArea');c.innerHTML=`<div class="pdf-area" style="padding:15px;font-family:Inter,sans-serif;color:#1a1a1a;">${pdfHeader('REHBERLİK ZİYARET DÖKÜMANI')}<table style="width:100%;border-collapse:collapse;margin-bottom:15px;"><tbody><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;width:30%;">Okul</td><td style="border:1px solid #d1d5db;padding:6px;font-size:10px;">${esc(school?.name||'')}</td></tr><tr><td style="border:1px solid #d1d5db;padding:6px;background:#f8fafc;font-weight:bold;font-size:10px;">Tarih</td><td style="border:1px solid #d1d5db;padding:6px;font-size:10px;">${fmtDate(g.date)}</td></tr></tbody></table><div style="margin-bottom:15px;"><div style="background:#0d9488;color:white;padding:6px 10px;font-size:11px;font-weight:bold;">SAHA GÖZLEMLERİ</div><div style="border:1px solid #d1d5db;border-top:none;padding:10px;font-size:10px;white-space:pre-wrap;">${esc(g.observations||'—')}</div></div><div style="margin-bottom:15px;"><div style="background:#0d9488;color:white;padding:6px 10px;font-size:11px;font-weight:bold;">TAVSİYE VE ÖNERİLER</div><div style="border:1px solid #d1d5db;border-top:none;padding:10px;font-size:10px;white-space:pre-wrap;">${esc(g.recommendations||'—')}</div></div>${pdfSignature(g.expertName,'')}</div>`;
+        downloadPDF(c.firstElementChild,`Rehberlik_${school?.name||'Rapor'}.pdf`);
+    }
+}
+
+// ============================================================
+//  REPORTS SECTION
+// ============================================================
+function renderReportsSection(){
+    const auditSel=document.getElementById('rptAuditSelect'),guidanceSel=document.getElementById('rptGuidanceSelect');
+    auditSel.innerHTML='<option value="">Rapor seçin...</option>'+DB.getAudits().map(a=>{const s=DB.getSchoolById(a.schoolId);return`<option value="${a.id}">${s?esc(s.name):'?'} — ${fmtDate(a.date)}</option>`;}).join('');
+    guidanceSel.innerHTML='<option value="">Rapor seçin...</option>'+DB.getGuidances().map(g=>{const s=DB.getSchoolById(g.schoolId);return`<option value="${g.id}">${s?esc(s.name):'?'} — ${fmtDate(g.date)}</option>`;}).join('');
+    // Okul Bazlı selects
+    const schoolSel=document.getElementById('rptSchoolSelect');
+    const schools=DB.getSchools().filter(s=>s.category==='sozlesmeli');
+    schoolSel.innerHTML='<option value="">Okul seçin...</option>'+schools.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');
+    // İlçe Bazlı select
+    const districtSel=document.getElementById('rptDistrictSelect');
+    if(districtSel){
+        const districtMap=new Map();
+        schools.forEach(s=>{const d=(s.ilce||'').trim();if(d) districtMap.set(d.toLocaleLowerCase('tr-TR'),d);});
+        const districts=[...districtMap.values()].sort((a,b)=>a.localeCompare(b,'tr'));
+        const settingsIlce=(DB.getSettings().ilce||'').trim();
+        districtSel.innerHTML='<option value="">İlçe seçin...</option>'+districts.map(d=>`<option value="${esc(d)}">${esc(d)}</option>`).join('');
+        const match=districts.find(d=>d.toLocaleLowerCase('tr-TR')===settingsIlce.toLocaleLowerCase('tr-TR'));
+        if(match) districtSel.value=match;
+    }
+    // Year selects for new reports
+    const now=new Date();['rptSchoolYear','rptDistrictYear'].forEach(id=>{
+        const el=document.getElementById(id);if(!el||el.options.length>1)return;
+        for(let y=now.getFullYear()-2;y<=now.getFullYear()+1;y++){el.innerHTML+=`<option value="${y}" ${y===now.getFullYear()?'selected':''}>${y}</option>`;}
+    });
+    document.getElementById('rptSchoolMonth').value=now.getMonth();
+    document.getElementById('rptDistrictMonth').value=now.getMonth();
+}
+function downloadSelectedAuditPDF(){const id=document.getElementById('rptAuditSelect').value;if(!id){showToast('Rapor seçin!','warning');return;}genRecordPDF(id,'denetim');}
+function downloadSelectedGuidancePDF(){const id=document.getElementById('rptGuidanceSelect').value;if(!id){showToast('Rapor seçin!','warning');return;}genRecordPDF(id,'rehberlik');}
+
+// ============================================================
+//  OKUL BAZLI PUANTAJ PDF
+// ============================================================
+function generateSchoolTimesheetPDF(){
+    const sid=document.getElementById('rptSchoolSelect').value;
+    if(!sid){showToast('Okul seçin!','warning');return;}
+    const school=DB.getSchoolById(sid),st=DB.getSettings();
+    const month=parseInt(document.getElementById('rptSchoolMonth').value),year=parseInt(document.getElementById('rptSchoolYear').value);
+    const allEntries=DB.getTimesheetsByMonth(year,month),entries=allEntries.filter(e=>e.schoolId===sid);
+    const dim=daysInMonth(year,month);
+    let rows='',gt=0,workDays=0;
+    for(let d=1;d<=dim;d++){
+        const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dow=new Date(year,month,d).getDay(),dn=DAYS_SHORT[dow],isWE=dow===0||dow===6;
+        const de=entries.filter(e=>e.date===ds),dt=de.reduce((s,e)=>s+parseFloat(e.hours||0),0);
+        gt+=dt;if(dt>0)workDays++;
+        const bg=isWE?'#f3f4f6':(dt>0?'#f0fdf4':'#fff');
+        const desc=de.map(e=>e.description||'').filter(Boolean).join('; ');
+        rows+=`<tr style="background:${bg}"><td style="border:1px solid #d1d5db;padding:3px 6px;text-align:center;font-size:10px;font-weight:bold;">${d}</td><td style="border:1px solid #d1d5db;padding:3px 6px;text-align:center;font-size:9px;">${dn}</td><td style="border:1px solid #d1d5db;padding:3px 6px;text-align:center;font-size:10px;font-weight:bold;color:${dt>0?'#16a34a':'#9ca3af'};">${dt>0?dt:'—'}</td><td style="border:1px solid #d1d5db;padding:3px 6px;font-size:9px;">${esc(desc)||'—'}</td></tr>`;
+    }
+    const c=document.getElementById('pdfRenderArea');
+    c.innerHTML=`<div class="pdf-area" style="padding:15px;font-family:Inter,sans-serif;color:#1a1a1a;">
+        ${pdfHeader('OKUL BAZLI AYLIK PUANTAJ CETVELİ',MONTHS_TR[month]+' '+year)}
+        <table style="width:100%;border-collapse:collapse;margin-bottom:12px;"><tbody>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;width:30%;">Okul Adı</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;font-weight:bold;">${esc(school.name)}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Tehlike Sınıfı</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${hazLabel(school.hazardClass)}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Kategori</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${catLabel(school.category)}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">İSG Uzmanı</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${esc(st.expertName||'')}</td></tr>
+            <tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Dönem</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${MONTHS_TR[month]} ${year}</td></tr>
+            ${school.monthlyHours?`<tr><td style="border:1px solid #d1d5db;padding:5px 8px;background:#f8fafc;font-weight:bold;font-size:10px;">Sözleşme Saati</td><td style="border:1px solid #d1d5db;padding:5px 8px;font-size:10px;">${school.monthlyHours} saat/ay</td></tr>`:''}
+        </tbody></table>
+        <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#1e3a5f;color:white;"><th style="border:1px solid #1e3a5f;padding:5px;font-size:10px;width:35px;">Gün</th><th style="border:1px solid #1e3a5f;padding:5px;font-size:10px;width:35px;">Gün</th><th style="border:1px solid #1e3a5f;padding:5px;font-size:10px;width:50px;">Saat</th><th style="border:1px solid #1e3a5f;padding:5px;font-size:10px;">Yapılan İSG Hizmeti</th></tr></thead>
+            <tbody>${rows}</tbody>
+            <tfoot><tr style="background:#1e3a5f;color:white;"><td colspan="2" style="border:1px solid #1e3a5f;padding:5px;font-size:11px;font-weight:bold;text-align:right;">TOPLAM</td><td style="border:1px solid #1e3a5f;padding:5px;font-size:11px;font-weight:bold;text-align:center;">${gt.toFixed(1)}</td><td style="border:1px solid #1e3a5f;padding:5px;font-size:10px;">${workDays} gün hizmet verildi</td></tr></tfoot>
+        </table>
+        ${school.monthlyHours?`<div style="margin-top:10px;padding:8px;border:1px solid ${gt>=school.monthlyHours?'#16a34a':'#dc2626'};border-radius:4px;background:${gt>=school.monthlyHours?'#f0fdf4':'#fef2f2'};font-size:10px;"><strong>Sözleşme Durumu:</strong> ${gt.toFixed(1)} / ${school.monthlyHours} saat — <strong style="color:${gt>=school.monthlyHours?'#16a34a':'#dc2626'};">${gt>=school.monthlyHours?'✓ Tamamlandı':'✗ Eksik: '+(school.monthlyHours-gt).toFixed(1)+' saat'}</strong></div>`:''}
+        ${pdfSignature(st.expertName,'')}
+    </div>`;
+    downloadPDF(c.firstElementChild,`Puantaj_OkulBazli_${school.name}_${MONTHS_TR[month]}_${year}.pdf`);
+}
+
+// ============================================================
+//  İLÇE BAZLI PUANTAJ PDF — YATAY A4 TEK SAYFA
+// ============================================================
+function generateDistrictTimesheetPDF(){
+    const district=(document.getElementById('rptDistrictSelect')?.value||'').trim();
+    const st=DB.getSettings();
+    const month=parseInt(document.getElementById('rptDistrictMonth').value),year=parseInt(document.getElementById('rptDistrictYear').value);
+    if(!district){showToast('Önce ilçe seçin!','warning');return;}
+    const norm=v=>(v||'').trim().toLocaleLowerCase('tr-TR');
+    const schools=DB.getSchools().filter(s=>s.category==='sozlesmeli');
+    const districtSchools=schools.filter(s=>norm(s.ilce)===norm(district));
+    if(!districtSchools.length){showToast(`${district} ilçesinde sözleşmeli okul bulunamadı!`,'warning');return;}
+    const ids=new Set(districtSchools.map(s=>s.id));
+    const entries=DB.getTimesheetsByMonth(year,month).filter(e=>ids.has(e.schoolId));
+    const grandTotal=entries.reduce((sum,e)=>sum+parseFloat(e.hours||0),0);
+    const totalVisitDays=new Set(entries.map(e=>e.date)).size;
+    const dim=daysInMonth(year,month);
+    let dailyRows='';
+    for(let d=1;d<=dim;d++){
+        const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dow=new Date(year,month,d).getDay(),dn=DAYS_SHORT[dow],isWE=dow===0||dow===6;
+        const dt=entries.filter(e=>e.date===ds).reduce((sum,e)=>sum+parseFloat(e.hours||0),0);
+        const bg=isWE?'#eef2f7':(dt>0?'#edf7ee':'#fff');
+        dailyRows+=`<tr style="background:${bg};"><td style="border:1px solid #bbb;padding:3px;text-align:center;font-size:9px;font-weight:bold;">${d}</td><td style="border:1px solid #bbb;padding:3px;text-align:center;font-size:9px;">${dn}</td><td style="border:1px solid #bbb;padding:3px;text-align:center;font-size:9px;font-weight:bold;color:${dt>0?'#16a34a':'#aaa'};">${dt>0?dt.toFixed(1):''}</td></tr>`;
+    }
+    dailyRows+=`<tr style="background:#1e3a5f;color:white;font-weight:bold;"><td colspan="2" style="border:1px solid #1e3a5f;padding:4px;font-size:10px;text-align:right;">İLÇE TOPLAM PUANTAJ</td><td style="border:1px solid #1e3a5f;padding:4px;font-size:11px;text-align:center;">${grandTotal.toFixed(1)} saat</td></tr>`;
+    const c=document.getElementById('pdfRenderArea');
+    c.style.width='210mm';
+    c.innerHTML=`<div class="pdf-area" style="padding:12px;font-family:Inter,sans-serif;color:#1a1a1a;">
+        <div style="text-align:center;border-bottom:2px solid #1e3a5f;padding-bottom:7px;margin-bottom:10px;">
+            <div style="font-size:10px;color:#1e3a5f;font-weight:bold;">T.C. MİLLÎ EĞİTİM BAKANLIĞI</div>
+            <div style="font-size:11px;color:#1e3a5f;font-weight:bold;">${esc(st.memName||'İl Millî Eğitim Müdürlüğü')}</div>
+            <div style="font-size:15px;font-weight:bold;color:#1e3a5f;margin-top:4px;">İLÇE BAZLI AYLIK İSG HİZMETİ TOPLAM PUANTAJ RAPORU</div>
+            <div style="font-size:10px;color:#555;margin-top:2px;">${esc(district)} — ${MONTHS_TR[month]} ${year}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:12px;">
+            <div style="border:1px solid #d1d5db;padding:8px;text-align:center;border-radius:4px;"><div style="font-size:9px;color:#666;">İLÇE</div><strong style="font-size:12px;">${esc(district)}</strong></div>
+            <div style="border:1px solid #d1d5db;padding:8px;text-align:center;border-radius:4px;"><div style="font-size:9px;color:#666;">OKUL SAYISI</div><strong style="font-size:15px;">${districtSchools.length}</strong></div>
+            <div style="border:1px solid #d1d5db;padding:8px;text-align:center;border-radius:4px;"><div style="font-size:9px;color:#666;">HİZMET GÜNÜ</div><strong style="font-size:15px;">${totalVisitDays}</strong></div>
+            <div style="border:1px solid #d1d5db;padding:8px;text-align:center;border-radius:4px;"><div style="font-size:9px;color:#666;">TOPLAM PUANTAJ</div><strong style="font-size:15px;color:#16a34a;">${grandTotal.toFixed(1)} saat</strong></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;"><thead><tr style="background:#1e3a5f;color:white;"><th style="border:1px solid #1e3a5f;padding:4px;font-size:9px;width:55px;">Gün</th><th style="border:1px solid #1e3a5f;padding:4px;font-size:9px;width:55px;">Gün</th><th style="border:1px solid #1e3a5f;padding:4px;font-size:9px;">${esc(district)} İlçesi Toplam Günlük Puantajı</th></tr></thead><tbody>${dailyRows}</tbody></table>
+        <div style="margin-top:12px;padding:8px;border:1px solid #d1d5db;background:#f8fafc;font-size:9px;"><strong>Açıklama:</strong> Bu raporda yalnızca <strong>${esc(district)}</strong> ilçesine kayıtlı sözleşmeli okulların seçilen ay içindeki puantaj kayıtları dikkate alınmıştır. Diğer ilçelere ait puantaj kayıtları toplam hesaba dahil edilmemiştir.</div>
+        <div style="display:flex;justify-content:space-between;margin-top:25px;font-size:9px;"><div style="text-align:center;width:180px;"><strong>Raporu Hazırlayan (İSG Uzmanı)</strong><br><br>${esc(st.expertName||'_______________')}<br><br>İmza: _______________</div><div style="text-align:center;"><strong>Tarih:</strong> ${fmtDate(new Date().toISOString().split('T')[0])}</div><div style="text-align:center;width:180px;"><strong>Onaylayan (İlçe MEM Müdürü)</strong><br><br>_______________<br><br>İmza: _______________</div></div>
+    </div>`;
+    downloadPDF(c.firstElementChild,`Puantaj_IlceToplam_${district}_${MONTHS_TR[month]}_${year}.pdf`);
+}
+
+// ============================================================
+//  EXCEL EXPORT
+// ============================================================
+function exportExcel(){
+    const sd=document.getElementById('rptExcelStart').value,ed=document.getElementById('rptExcelEnd').value;const wb=XLSX.utils.book_new();
+    // Schools
+    const schools=DB.getSchools().map(s=>({'Okul Adı':s.name,'Tehlike Sınıfı':hazLabel(s.hazardClass),'Kategori':catLabel(s.category),'Çalışan':s.employeeCount||'','Aylık Saat':s.monthlyHours||'','Adres':s.address||'','Telefon':s.phone||''}));
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(schools.length?schools:[{Bilgi:'Kayıt yok'}]),'Okullar');
+    // Timesheet
+    let ts=DB.getTimesheets();if(sd)ts=ts.filter(t=>t.date>=sd);if(ed)ts=ts.filter(t=>t.date<=ed);
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(ts.length?ts.map(t=>{const s=DB.getSchoolById(t.schoolId);return{Tarih:fmtDate(t.date),Okul:s?s.name:'?',Saat:t.hours,Açıklama:t.description||'',Uzman:t.expertName||''};}):[{Bilgi:'Kayıt yok'}]),'Puantaj');
+    // Audits
+    let au=DB.getAudits();if(sd)au=au.filter(a=>a.date>=sd);if(ed)au=au.filter(a=>a.date<=ed);
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(au.length?au.map(a=>{const s=DB.getSchoolById(a.schoolId);return{Tarih:fmtDate(a.date),Okul:s?s.name:'?',Uzman:a.expertName||'',Değerlendirme:a.evaluation||''};}):[{Bilgi:'Kayıt yok'}]),'Denetimler');
+    // Guidances
+    let gu=DB.getGuidances();if(sd)gu=gu.filter(g=>g.date>=sd);if(ed)gu=gu.filter(g=>g.date<=ed);
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(gu.length?gu.map(g=>{const s=DB.getSchoolById(g.schoolId);return{Tarih:fmtDate(g.date),Okul:s?s.name:'?',Gözlemler:g.observations||'',Tavsiyeler:g.recommendations||''};}):[{Bilgi:'Kayıt yok'}]),'Rehberlik');
+    XLSX.writeFile(wb,`MEB_ISG_Rapor_${new Date().toISOString().split('T')[0]}.xlsx`);showToast('Excel indirildi');
+}
+
+// ============================================================
+//  SETTINGS & BACKUP
+// ============================================================
+function renderSettings(){
+    const s=DB.getSettings();
+    document.getElementById('settExpertName').value=s.expertName||'';document.getElementById('settExpertTitle').value=s.expertTitle||'B Sınıfı İSG Uzmanı';
+    document.getElementById('settMemName').value=s.memName||'';document.getElementById('settIlce').value=s.ilce||'';
+    document.getElementById('statSchoolsCount2').textContent=DB.getSchools().length;document.getElementById('statTimesheetCount2').textContent=DB.getTimesheets().length;
+    document.getElementById('statAuditCount2').textContent=DB.getAudits().length;document.getElementById('statGuidanceCount2').textContent=DB.getGuidances().length;
+}
+function saveSettings(){DB.saveSettings({expertName:document.getElementById('settExpertName').value.trim(),expertTitle:document.getElementById('settExpertTitle').value,memName:document.getElementById('settMemName').value.trim(),ilce:document.getElementById('settIlce').value.trim()});showToast('Ayarlar kaydedildi');}
+function exportBackup(){const d=DB.exportAll();const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=`MEB_ISG_Yedek_${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(u);showToast('Yedek indirildi');}
+function importBackup(ev){
+    const f=ev.target.files[0];if(!f)return;const r=new FileReader();
+    r.onload=function(e){try{const d=JSON.parse(e.target.result);if(!d.schools&&!d.timesheets){showToast('Geçersiz dosya!','error');return;}
+        openModal(`<div class="text-center"><div class="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-4"><i class="fas fa-upload text-blue-600 text-2xl"></i></div><h3 class="font-bold text-lg mb-2">Yedek Yükle</h3><p class="text-sm text-gray-500 mb-4">Mevcut veriler değiştirilecektir.</p><div class="bg-gray-100 dark:bg-slate-700 rounded-lg p-3 mb-4 text-left text-xs"><p>Okullar: ${(d.schools||[]).length}</p><p>Puantaj: ${(d.timesheets||[]).length}</p><p>Denetim: ${(d.audits||[]).length}</p><p>Rehberlik: ${(d.guidances||[]).length}</p></div><div class="flex gap-3"><button onclick="window._imp&&(DB.importAll(window._imp),delete window._imp,closeModal(),showToast('Yüklendi'),renderSchools(),renderSettings())" class="flex-1 bg-blue-600 text-white px-4 py-2.5 rounded-xl font-semibold">Yükle</button><button onclick="closeModal()" class="flex-1 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-semibold">İptal</button></div></div>`);
+        window._imp=d;}catch(err){showToast('Hata: '+err.message,'error');}};
+    r.readAsText(f);ev.target.value='';
+}
+function confirmClearData(){openModal(`<div class="text-center"><div class="w-16 h-16 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i></div><h3 class="font-bold text-lg text-red-600 mb-2">Tüm Verileri Sil</h3><p class="text-sm text-gray-500 mb-4">Bu işlem geri alınamaz!</p><div class="flex gap-3"><button onclick="DB.clearAll();closeModal();showToast('Silindi','warning');renderSchools();renderSettings();" class="flex-1 bg-red-600 text-white px-4 py-2.5 rounded-xl font-semibold">Evet, Sil</button><button onclick="closeModal()" class="flex-1 bg-gray-200 dark:bg-slate-600 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl font-semibold">İptal</button></div></div>`);}
+
+// ============================================================
+//  DRAG & DROP
+// ============================================================
+function initDragDrop(){const dz=document.getElementById('dropZone');if(!dz)return;['dragenter','dragover'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('border-meb-accent','bg-amber-50');}));['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('border-meb-accent','bg-amber-50');}));dz.addEventListener('drop',ev=>{if(ev.dataTransfer.files.length)importBackup({target:{files:ev.dataTransfer.files,value:''}});});}
+
+// ============================================================
+    //  GLOBAL ERROR GUARD
+    // ============================================================
+    window.addEventListener('error', event => {
+        console.error('MEB İSG Sistem Hatası:', event.error || event.message);
+    });
+
+// ============================================================
+//  INIT
+// ============================================================
+function init(){
+    applyTheme(DB.getTheme());initTimesheetSelectors();initDragDrop();renderSchools();
+    const st=DB.getSettings();if(st.expertName){const te=document.getElementById('tsExpert');if(te&&!te.value)te.value=st.expertName;}
+}
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
