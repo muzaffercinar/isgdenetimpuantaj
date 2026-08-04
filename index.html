@@ -1648,8 +1648,9 @@ document.addEventListener('DOMContentLoaded',init);
    <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Estetik ve Duzenlenmis Surum)
+  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Guncellenmis Surum)
   ================================================================================
 -->
 <script>
@@ -1794,7 +1795,7 @@ document.addEventListener('DOMContentLoaded',init);
         const badgeContainer = document.createElement('div');
         badgeContainer.style.cssText = "margin-top: 10px; padding: 10px 14px; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; font-size: 11px; color: #38bdf8; display: flex; align-items: center; justify-content: space-between; font-family: system-ui, sans-serif;";
         
-        const text = remainingDays > 3000 ? "Sinirsiz Surum" : `${remainingDays} Gun Kaldý`;
+        const text = remainingDays > 3000 ? "Sinirsiz Surum" : `${remainingDays} Gun Kaldi`;
         badgeContainer.innerHTML = `
             <span style="color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Lisans Durumu</span>
             <span style="font-weight: 600; color: #38bdf8;">${text}</span>
@@ -1807,26 +1808,37 @@ document.addEventListener('DOMContentLoaded',init);
         const sidebarNav = document.querySelector('aside nav') || document.querySelector('aside') || document.querySelector('.sidebar') || document.body;
         
         const container = document.createElement('div');
-        container.style.cssText = "margin-top: auto; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); font-family: system-ui, sans-serif;";
+        container.style.cssText = "margin-top: auto; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); font-family: system-ui, sans-serif; display: flex; flex-direction: column; gap: 8px;";
         
-        const btn = document.createElement('button');
-        btn.innerHTML = `Yonetici Paneli`;
-        btn.style.cssText = "width: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;";
-        
-        btn.onmouseover = () => { 
-            btn.style.background = "rgba(59, 130, 246, 0.15)"; 
-            btn.style.color = "#38bdf8";
-            btn.style.borderColor = "rgba(59, 130, 246, 0.3)";
-        };
-        btn.onmouseout = () => { 
-            btn.style.background = "rgba(255, 255, 255, 0.05)"; 
-            btn.style.color = "#cbd5e1";
-            btn.style.borderColor = "rgba(255, 255, 255, 0.1)";
-        };
+        // Yonetici Paneli Butonu
+        const btnAdmin = document.createElement('button');
+        btnAdmin.innerHTML = `Yonetici Paneli`;
+        btnAdmin.style.cssText = "width: 100%; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.05); color: #cbd5e1; border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s;";
+        btnAdmin.onmouseover = () => { btnAdmin.style.background = "rgba(59, 130, 246, 0.15);"; btnAdmin.style.color = "#38bdf8"; btnAdmin.style.borderColor = "rgba(59, 130, 246, 0.3)"; };
+        btnAdmin.onmouseout = () => { btnAdmin.style.background = "rgba(255, 255, 255, 0.05)"; btnAdmin.style.color = "#cbd5e1"; btnAdmin.style.borderColor = "rgba(255, 255, 255, 0.1)"; };
+        btnAdmin.addEventListener('click', openAdminPanel);
 
-        btn.addEventListener('click', openAdminPanel);
-        container.appendChild(btn);
+        // Lisans Degistir Butonu (Demo bitmeden yeni anahtar girme imkani)
+        const btnChangeLicense = document.createElement('button');
+        btnChangeLicense.innerHTML = `Yeni Lisans Gir`;
+        btnChangeLicense.style.cssText = "width: 100%; display: flex; align-items: center; justify-content: center; background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer; transition: all 0.2s;";
+        btnChangeLicense.onmouseover = () => { btnChangeLicense.style.background = "rgba(59, 130, 246, 0.25)"; btnChangeLicense.style.color = "#93c5fd"; };
+        btnChangeLicense.onmouseout = () => { btnChangeLicense.style.background = "rgba(59, 130, 246, 0.1)"; btnChangeLicense.style.color = "#60a5fa"; };
+        btnChangeLicense.addEventListener('click', promptNewLicense);
+
+        container.appendChild(btnAdmin);
+        container.appendChild(btnChangeLicense);
         sidebarNav.appendChild(container);
+    }
+
+    function promptNewLicense() {
+        const newKey = prompt("Yeni lisans anahtarýnýzý (veya yönetici þifrenizi) giriniz:");
+        if (!newKey) return;
+        const res = BekardLicenseManager.verifyAndActivate(newKey);
+        alert(res.message);
+        if (res.success) {
+            location.reload();
+        }
     }
 
     function openAdminPanel() {
