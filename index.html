@@ -1655,8 +1655,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (ISKUR-TYP Karakter Duzenlemesi)
+  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Cihaz Kilitleme Guvenlik Guncellemesi)
   ================================================================================
 -->
 <script>
@@ -1664,6 +1665,17 @@ document.addEventListener('DOMContentLoaded',init);
     const ADMIN_PASS = "Mcinar_2026";
     const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v9";
     const ADMIN_USED_KEYS_DB = "bekard_admin_used_keys";
+    const DEVICE_ID_KEY = "bekard_isg_device_fingerprint";
+
+    // Cihaz icin benzersiz bir parmak izi (browser/hardware fingerprint) olustur veya getir
+    function getDeviceFingerprint() {
+        let deviceId = localStorage.getItem(DEVICE_ID_KEY);
+        if (!deviceId) {
+            deviceId = 'DEV-' + Math.random().toString(36).substring(2, 9).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+            localStorage.setItem(DEVICE_ID_KEY, deviceId);
+        }
+        return deviceId;
+    }
 
     let seed = 2026;
     function getNextRandom() {
@@ -1686,26 +1698,24 @@ document.addEventListener('DOMContentLoaded',init);
     for(let i=0; i<1500; i++) KEY_POOL.full365.push(generateFormatCode());
     for(let i=0; i<1500; i++) KEY_POOL.full730.push(generateFormatCode());
 
-    function getUsedKeys() {
-        try { return JSON.parse(localStorage.getItem(ADMIN_USED_KEYS_DB)) || []; } catch(e) { return []; }
+    function getRegistry() {
+        try { return JSON.parse(localStorage.getItem(ADMIN_USED_KEYS_DB)) || {}; } catch(e) { return {}; }
     }
-    function markKeyAsUsed(key) {
-        const keys = getUsedKeys();
-        if (!keys.includes(key)) {
-            keys.push(key);
-            localStorage.setItem(ADMIN_USED_KEYS_DB, JSON.stringify(keys));
-        }
+    
+    function saveRegistry(registry) {
+        localStorage.setItem(ADMIN_USED_KEYS_DB, JSON.stringify(registry));
     }
+
     function getUnusedCount(poolArray) {
-        const used = getUsedKeys();
-        return poolArray.filter(k => !used.includes(k)).length;
+        const registry = getRegistry();
+        return poolArray.filter(k => !registry[k]).length;
     }
+
     function getNextAvailableKey(type) {
         const pool = KEY_POOL[type];
-        const used = getUsedKeys();
+        const registry = getRegistry();
         for (let i = 0; i < pool.length; i++) {
-            if (!used.includes(pool[i])) {
-                markKeyAsUsed(pool[i]);
+            if (!registry[pool[i]]) {
                 return pool[i];
             }
         }
@@ -1714,11 +1724,31 @@ document.addEventListener('DOMContentLoaded',init);
 
     function validateKey(inputKey) {
         inputKey = inputKey.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''); 
-        if (KEY_POOL.demo15.includes(inputKey)) return { valid: true, days: 15, type: 'demo' };
-        if (KEY_POOL.demo30.includes(inputKey)) return { valid: true, days: 30, type: 'demo' };
-        if (KEY_POOL.full365.includes(inputKey)) return { valid: true, days: 365, type: 'full' };
-        if (KEY_POOL.full730.includes(inputKey)) return { valid: true, days: 730, type: 'full' };
-        return { valid: false };
+        let type = null;
+        let days = 0;
+
+        if (KEY_POOL.demo15.includes(inputKey)) { type = 'demo'; days = 15; }
+        else if (KEY_POOL.demo30.includes(inputKey)) { type = 'demo'; days = 30; }
+        else if (KEY_POOL.full365.includes(inputKey)) { type = 'full'; days = 365; }
+        else if (KEY_POOL.full730.includes(inputKey)) { type = 'full'; days = 730; }
+
+        if (!type) return { valid: false, message: "Gecersiz veya hatali sifre girdiniz!" };
+
+        const registry = getRegistry();
+        const currentDevice = getDeviceFingerprint();
+
+        // Eger anahtar daha once baska bir cihaza kaydedildiyse reddet!
+        if (registry[inputKey]) {
+            if (registry[inputKey] !== currentDevice) {
+                return { valid: false, message: "Bu lisans anahtari baska bir cihaza tanimlanmistir! Farkli bir cihazda kullanilamaz." };
+            }
+        } else {
+            // Ilk kez kullaniliyorsa bu cihaza kilitle
+            registry[inputKey] = currentDevice;
+            saveRegistry(registry);
+        }
+
+        return { valid: true, days: days, type: type };
     }
 
     window.BekardLicenseManager = {
@@ -1737,15 +1767,24 @@ document.addEventListener('DOMContentLoaded',init);
                     key: inputKey,
                     expiresAt: expiryDate.toISOString()
                 }));
-                return { success: true, message: `${check.days} Gunluk Lisans Onaylandi!` };
+                return { success: true, message: `${check.days} Gunluk Lisans Bu Cihaza Basariyla Tanimlandi!` };
             }
-            return { success: false, message: "Gecersiz veya hatali sifre girdiniz!" };
+            return { success: false, message: check.message || "Gecersiz veya hatali sifre girdiniz!" };
         },
 
         CheckStatus() {
             try {
                 const data = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY));
                 if (!data) return { active: false };
+
+                // Admin veya baska cihaz cakismalarinda aktif lisansin bu cihaza ait oldugunu dogrula
+                if (data.key !== 'ADMIN') {
+                    const registry = getRegistry();
+                    const currentDevice = getDeviceFingerprint();
+                    if (registry[data.key] && registry[data.key] !== currentDevice) {
+                        return { active: false, message: 'Lisansguvenligi ihlali: Bu lisans baska cihaza ait.' };
+                    }
+                }
 
                 const now = new Date();
                 const expires = new Date(data.expiresAt);
@@ -1766,7 +1805,6 @@ document.addEventListener('DOMContentLoaded',init);
             injectAdminMenuIntegration();
         }
         
-        // Arayuz uzerindeki MEB Ýsg ve ÝSKUR-TYP ifadelerini duzeltir
         setTimeout(fixTextContent, 300);
     });
 
@@ -1808,7 +1846,7 @@ document.addEventListener('DOMContentLoaded',init);
         overlay.innerHTML = `
             <div style="background: #1e293b; border: 1px solid #334155; padding: 40px; border-radius: 18px; width: 100%; max-width: 380px; text-align: center; color: white;">
                 <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">BEKARD ÝSG Sistemi</h2>
-                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Korumali Surum</p>
+                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Cihaz Korumali Surum</p>
                 <div style="font-size: 11px; color: #f87171; margin-bottom: 15px;">${warningText}</div>
                 
                 <input type="text" id="bekardInputKey" placeholder="Lisans Kodu (Orn: ABCD1234)" style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #38bdf8; font-size: 16px; margin-bottom: 15px; text-align: center; font-family: monospace; text-transform: uppercase; letter-spacing: 2px;">
@@ -1836,7 +1874,7 @@ document.addEventListener('DOMContentLoaded',init);
         
         const text = remainingDays > 3000 ? "Sinirsiz" : `${remainingDays}`;
         badgeContainer.innerHTML = `
-            <span style="color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Lisans Durumu</span>
+            <span style="color: #94a3b8; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Cihaz Lisansi</span>
             <span style="font-weight: 600; color: #38bdf8;">${text}</span>
         `;
         
@@ -1893,11 +1931,12 @@ document.addEventListener('DOMContentLoaded',init);
             modal.innerHTML = `
                 <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 450px; color: white; position: relative;">
                     <button onclick="document.getElementById('bekard-admin-modal').remove(); location.reload();" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">?</button>
-                    <h3 style="margin-bottom: 20px; font-size: 16px; color: #38bdf8;">Yonetici Paneli</h3>
+                    <h3 style="margin-bottom: 20px; font-size: 16px; color: #38bdf8;">Yonetici Paneli (Cihaz Kilidi Aktif)</h3>
                     
                     <div id="newKeyDisplay" style="display: none; background: #064e3b; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-                        <div style="font-size: 11px; color: #a7f3d0; margin-bottom: 5px;">Musteriye Verilecek Yeni Sifre:</div>
+                        <div style="font-size: 11px; color: #a7f3d0; margin-bottom: 5px;">Musteriye Verilecek Tekil Sifre:</div>
                         <div id="newKeyText" style="font-size: 20px; font-weight: bold; color: white; font-family: monospace; letter-spacing: 2px;"></div>
+                        <div style="font-size: 10px; color: #d1fae5; margin-top: 5px;">* Bu sifre girildigi ilk cihza ozel olarak kilitlenir.</div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
