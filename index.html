@@ -1652,8 +1652,9 @@ document.addEventListener('DOMContentLoaded',init);
    <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Karakter Kodlama Duzenlenmis Surum)
+  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (MEB ÝSG Deðiþikliði Tamamlandý)
   ================================================================================
 -->
 <script>
@@ -1762,7 +1763,27 @@ document.addEventListener('DOMContentLoaded',init);
             injectStatusBadge(status.remainingDays);
             injectAdminMenuIntegration();
         }
+        
+        // Sayfa icindeki olasi "MEB Ýsg" veya benzeri basliklari BEKARD ISG ile degistir
+        setTimeout(replaceMebTitles, 500);
     });
+
+    function replaceMebTitles() {
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+        let node;
+        while (node = walker.nextNode()) {
+            if (node.nodeValue && (node.nodeValue.includes("MEB Ýsg") || node.nodeValue.includes("MEB ÝSG") || node.nodeValue.includes("MEB Isg"))) {
+                node.nodeValue = node.nodeValue.replace(/MEB\s*[ÝÝiI]sg/gi, "BEKARD ÝSG");
+            }
+        }
+        
+        // Header veya baslik alanlarinda ID/Class bazli arama ve degisiklik
+        document.querySelectorAll('h1, h2, h3, h4, title, .brand, .logo').forEach(el => {
+            if (el.innerText.includes("MEB")) {
+                el.innerText = el.innerText.replace(/MEB\s*[ÝÝiI]sg/gi, "BEKARD ÝSG");
+            }
+        });
+    }
 
     function createLockScreen(warningText) {
         const overlay = document.createElement('div');
@@ -1771,7 +1792,7 @@ document.addEventListener('DOMContentLoaded',init);
         
         overlay.innerHTML = `
             <div style="background: #1e293b; border: 1px solid #334155; padding: 40px; border-radius: 18px; width: 100%; max-width: 380px; text-align: center; color: white;">
-                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">ISG Puantaj Sistemi</h2>
+                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">BEKARD ÝSG Sistemi</h2>
                 <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Korumali Surum</p>
                 <div style="font-size: 11px; color: #f87171; margin-bottom: 15px;">${warningText}</div>
                 
@@ -1833,7 +1854,7 @@ document.addEventListener('DOMContentLoaded',init);
     }
 
     function promptNewLicense() {
-        const newKey = prompt("Yeni lisans anahtarinizi (veya yonetici sifrenizi) giriniz:");
+        const newKey = prompt("Yeni lisans anahtarini giriniz:");
         if (!newKey) return;
         const res = BekardLicenseManager.verifyAndActivate(newKey);
         alert(res.message);
