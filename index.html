@@ -1644,8 +1644,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026 Kurumsal ÝSG Lisans Mimarisi (Hazýr Havuz / Çevrimdýþý Daðýtým)
+  BEKARD v2026 Kurumsal ISG Lisans Mimarisi (Karakter Hatalari Giderilmis Surum)
   ================================================================================
 -->
 <script>
@@ -1654,23 +1655,23 @@ document.addEventListener('DOMContentLoaded',init);
     const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v9";
     const ADMIN_USED_KEYS_DB = "bekard_admin_used_keys";
 
-    // 1) Sabit Tohumlu Rastgele Sayý Üretici (Her bilgisayarda ayný 6000 kodu üretir)
+    // 1) Sabit Tohumlu Rastgele Sayi Uretici
     let seed = 2026;
     function getNextRandom() {
         let x = Math.sin(seed++) * 10000;
         return x - Math.floor(x);
     }
 
-    // 2) 4 Harf + 4 Rakam Üreten Algoritma
+    // 2) 4 Harf + 4 Rakam Ureten Algoritma
     const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     function generateFormatCode() {
         let str = "";
         for(let i=0; i<4; i++) str += letters[Math.floor(getNextRandom() * 26)];
         for(let i=0; i<4; i++) str += Math.floor(getNextRandom() * 10);
-        return str; // Örn: ABCD1234
+        return str; // Orn: ABCD1234
     }
 
-    // 3) 6000 Þifrelik Veritabanýný Hafýzada Canlandýrma
+    // 3) 6000 Sifrelik Veritabanini Hafizada Canlandirma
     const KEY_POOL = { demo15: [], demo30: [], full365: [], full730: [] };
     
     for(let i=0; i<1500; i++) KEY_POOL.demo15.push(generateFormatCode());
@@ -1678,7 +1679,7 @@ document.addEventListener('DOMContentLoaded',init);
     for(let i=0; i<1500; i++) KEY_POOL.full365.push(generateFormatCode());
     for(let i=0; i<1500; i++) KEY_POOL.full730.push(generateFormatCode());
 
-    // 4) Yönetici Panelinin Kullandýðý/Daðýttýðý Þifreleri Kaydetme
+    // 4) Yonetici Panelinin Kullandigi/Dagittigi Sifreleri Kaydetme
     function getUsedKeys() {
         try { return JSON.parse(localStorage.getItem(ADMIN_USED_KEYS_DB)) || []; } catch(e) { return []; }
     }
@@ -1702,12 +1703,12 @@ document.addEventListener('DOMContentLoaded',init);
                 return pool[i];
             }
         }
-        return "TÜKENDÝ";
+        return "TUKENDI";
     }
 
-    // 5) Girilen Þifrenin Doðruluðunu Kontrol Etme
+    // 5) Girilen Sifrenin Dogrulugunu Kontrol Etme
     function validateKey(inputKey) {
-        inputKey = inputKey.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''); // Sadece harf ve rakam
+        inputKey = inputKey.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''); 
         if (KEY_POOL.demo15.includes(inputKey)) return { valid: true, days: 15, type: 'demo' };
         if (KEY_POOL.demo30.includes(inputKey)) return { valid: true, days: 30, type: 'demo' };
         if (KEY_POOL.full365.includes(inputKey)) return { valid: true, days: 365, type: 'full' };
@@ -1720,7 +1721,7 @@ document.addEventListener('DOMContentLoaded',init);
             if (inputKey === ADMIN_PASS) {
                 const expiry = new Date(new Date().getTime() + (365 * 10 * 24 * 60 * 60 * 1000));
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify({ type: 'full', key: 'ADMIN', expiresAt: expiry.toISOString() }));
-                return { success: true, message: "Yönetici yetkisi onaylandý!" };
+                return { success: true, message: "Yonetici yetkisi onaylandi!" };
             }
 
             const check = validateKey(inputKey);
@@ -1731,9 +1732,9 @@ document.addEventListener('DOMContentLoaded',init);
                     key: inputKey,
                     expiresAt: expiryDate.toISOString()
                 }));
-                return { success: true, message: `${check.days} Günlük Lisans Onaylandý!` };
+                return { success: true, message: `${check.days} Gunluk Lisans Onaylandi!` };
             }
-            return { success: false, message: "Geçersiz veya hatalý þifre girdiniz!" };
+            return { success: false, message: "Gecersiz veya hatali sifre girdiniz!" };
         },
 
         CheckStatus() {
@@ -1743,7 +1744,7 @@ document.addEventListener('DOMContentLoaded',init);
 
                 const now = new Date();
                 const expires = new Date(data.expiresAt);
-                if (now > expires) return { active: false, message: 'Lisans süreniz dolmuþtur.' };
+                if (now > expires) return { active: false, message: 'Lisans sureniz dolmustur.' };
 
                 const diffDays = Math.ceil((expires - now) / (1000 * 60 * 60 * 24));
                 return { active: true, remainingDays: diffDays };
@@ -1751,11 +1752,10 @@ document.addEventListener('DOMContentLoaded',init);
         }
     };
 
-    // Arayüz Yükleme Mantýðý
     window.addEventListener('DOMContentLoaded', () => {
         const status = BekardLicenseManager.CheckStatus();
         if (!status.active) {
-            createLockScreen(status.message || 'Sistemi kullanmak için lütfen lisans kodunuzu girin.');
+            createLockScreen(status.message || 'Sistemi kullanmak icin lutfen lisans kodunuzu girin.');
         } else {
             injectAdminTrigger();
         }
@@ -1768,15 +1768,15 @@ document.addEventListener('DOMContentLoaded',init);
         
         overlay.innerHTML = `
             <div style="background: #1e293b; border: 1px solid #334155; padding: 40px; border-radius: 18px; width: 100%; max-width: 380px; text-align: center; color: white;">
-                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">ÝSG Puantaj Sistemi</h2>
-                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Korumalý Sürüm</p>
+                <h2 style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">ISG Puantaj Sistemi</h2>
+                <p style="font-size: 12px; color: #94a3b8; margin-bottom: 25px;">Korumali Surum</p>
                 <div style="font-size: 11px; color: #f87171; margin-bottom: 15px;">${warningText}</div>
                 
-                <input type="text" id="bekardInputKey" placeholder="Lisans Kodu (Örn: ABCD1234)" style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #38bdf8; font-size: 16px; margin-bottom: 15px; text-align: center; font-family: monospace; text-transform: uppercase; letter-spacing: 2px;">
-                <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Giriþ Yap</button>
+                <input type="text" id="bekardInputKey" placeholder="Lisans Kodu (Orn: ABCD1234)" style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #38bdf8; font-size: 16px; margin-bottom: 15px; text-align: center; font-family: monospace; text-transform: uppercase; letter-spacing: 2px;">
+                <button id="bekardSubmitKeyBtn" style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;">Giris Yap</button>
                 
                 <div style="margin-top: 30px;">
-                    <button id="bekardOpenAdmin" style="background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer; text-decoration: underline;">Yetkili / Yönetici Paneli</button>
+                    <button id="bekardOpenAdmin" style="background: none; border: none; color: #64748b; font-size: 10px; cursor: pointer; text-decoration: underline;">Yetkili / Yonetici Paneli</button>
                 </div>
             </div>
         `;
@@ -1791,15 +1791,15 @@ document.addEventListener('DOMContentLoaded',init);
 
     function injectAdminTrigger() {
         const btn = document.createElement('button');
-        btn.innerText = "Anahtar Daðýtým Paneli";
+        btn.innerText = "Anahtar Dagitim Paneli";
         btn.style.cssText = "position: fixed; bottom: 15px; left: 15px; background: #1e293b; color: #94a3b8; border: 1px solid #334155; padding: 6px 12px; border-radius: 6px; font-size: 11px; z-index: 9999; cursor: pointer;";
         document.body.appendChild(btn);
         btn.addEventListener('click', openAdminPanel);
     }
 
     function openAdminPanel() {
-        const pass = prompt("Yönetici Þifresini Girin:");
-        if (pass !== ADMIN_PASS) return alert("Hatalý Þifre!");
+        const pass = prompt("Yonetici Sifresini Girin:");
+        if (pass !== ADMIN_PASS) return alert("Hatali Sifre!");
         
         const existing = document.getElementById('bekard-admin-modal');
         if (existing) existing.remove();
@@ -1812,33 +1812,33 @@ document.addEventListener('DOMContentLoaded',init);
             modal.innerHTML = `
                 <div style="background: #1e293b; border: 1px solid #475569; padding: 25px; border-radius: 16px; width: 100%; max-width: 450px; color: white; position: relative;">
                     <button onclick="document.getElementById('bekard-admin-modal').remove(); if(!BekardLicenseManager.CheckStatus().active) location.reload();" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: white; cursor: pointer; font-size: 16px;">?</button>
-                    <h3 style="margin-bottom: 20px; font-size: 16px; color: #38bdf8;">Lisans Daðýtým Paneli</h3>
+                    <h3 style="margin-bottom: 20px; font-size: 16px; color: #38bdf8;">Lisans Dagitim Paneli</h3>
                     
                     <div id="newKeyDisplay" style="display: none; background: #064e3b; border: 1px solid #10b981; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
-                        <div style="font-size: 11px; color: #a7f3d0; margin-bottom: 5px;">Müþteriye Verilecek Yeni Þifre:</div>
+                        <div style="font-size: 11px; color: #a7f3d0; margin-bottom: 5px;">Musteriye Verilecek Yeni Sifre:</div>
                         <div id="newKeyText" style="font-size: 20px; font-weight: bold; color: white; font-family: monospace; letter-spacing: 2px;"></div>
                     </div>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                         <div style="background: #0f172a; padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 12px; color: #94a3b8;">15 Günlük Demo</div>
+                            <div style="font-size: 12px; color: #94a3b8;">15 Gunluk Demo</div>
                             <div style="font-size: 10px; color: #64748b; margin-bottom: 10px;">Kalan: ${getUnusedCount(KEY_POOL.demo15)}/1500</div>
-                            <button onclick="window.generateKeyAction('demo15')" style="width: 100%; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Þifre Çek</button>
+                            <button onclick="window.generateKeyAction('demo15')" style="width: 100%; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Sifre Cek</button>
                         </div>
                         <div style="background: #0f172a; padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 12px; color: #94a3b8;">30 Günlük Demo</div>
+                            <div style="font-size: 12px; color: #94a3b8;">30 Gunluk Demo</div>
                             <div style="font-size: 10px; color: #64748b; margin-bottom: 10px;">Kalan: ${getUnusedCount(KEY_POOL.demo30)}/1500</div>
-                            <button onclick="window.generateKeyAction('demo30')" style="width: 100%; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Þifre Çek</button>
+                            <button onclick="window.generateKeyAction('demo30')" style="width: 100%; padding: 8px; background: #3b82f6; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Sifre Cek</button>
                         </div>
                         <div style="background: #0f172a; padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 12px; color: #fbbf24;">1 Yýllýk Tam Sürüm</div>
+                            <div style="font-size: 12px; color: #fbbf24;">1 Yillik Tam Surum</div>
                             <div style="font-size: 10px; color: #64748b; margin-bottom: 10px;">Kalan: ${getUnusedCount(KEY_POOL.full365)}/1500</div>
-                            <button onclick="window.generateKeyAction('full365')" style="width: 100%; padding: 8px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Þifre Çek</button>
+                            <button onclick="window.generateKeyAction('full365')" style="width: 100%; padding: 8px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Sifre Cek</button>
                         </div>
                         <div style="background: #0f172a; padding: 15px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 12px; color: #fbbf24;">2 Yýllýk Tam Sürüm</div>
+                            <div style="font-size: 12px; color: #fbbf24;">2 Yillik Tam Surum</div>
                             <div style="font-size: 10px; color: #64748b; margin-bottom: 10px;">Kalan: ${getUnusedCount(KEY_POOL.full730)}/1500</div>
-                            <button onclick="window.generateKeyAction('full730')" style="width: 100%; padding: 8px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Þifre Çek</button>
+                            <button onclick="window.generateKeyAction('full730')" style="width: 100%; padding: 8px; background: #f59e0b; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;">Sifre Cek</button>
                         </div>
                     </div>
                 </div>
