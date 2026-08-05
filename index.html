@@ -1662,8 +1662,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026: Kesin Cozumlu Esnek Lisans ve Aktivasyon Mimarisi
+  BEKARD v2026: Dahili ve Kalici Yonetici Lisans Uretim Paneli Entegreli Surum
   ================================================================================
 -->
 <script>
@@ -1671,9 +1672,9 @@ document.addEventListener('DOMContentLoaded',init);
     const ADMIN_PASS = "Mcinar_2026";
     const TRIAL_DAYS = 7;
 
-    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v19";
-    const HARDWARE_FINGERPRINT_KEY = "bekard_isg_hw_lock_v19";
-    const LAST_SEEN_DATE_KEY = "bekard_isg_last_seen_date_v19";
+    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v20";
+    const HARDWARE_FINGERPRINT_KEY = "bekard_isg_hw_lock_v20";
+    const LAST_SEEN_DATE_KEY = "bekard_isg_last_seen_date_v20";
     const SECRET_SALT = "BEKARD_ISG_SECURE_2026_KEY";
 
     function getHardwareFingerprint() {
@@ -1756,16 +1757,11 @@ document.addEventListener('DOMContentLoaded',init);
             return { valid: false, message: "Gecersiz lisans anahtari formati!" };
         }
 
-        // Anahtarýn içindeki cihaz ID'sini ve yýl bilgisini güvenli þekilde ayýkla
-        // Format: BKRD - CihazID_Parcalari - Yil - Hash
         let yearPartIndex = parts.length - 2;
-        let yearPart = parts[yearPartIndex]; // Örn: "1Y"
+        let yearPart = parts[yearPartIndex]; 
         let years = parseInt(yearPart) || 1;
-
-        // Cihaz ID kýsmýný dinamik olarak birleþtir (HW-15EA5B36-ILM gibi tire içeren ID'leri destekler)
         let embeddedDevice = parts.slice(1, yearPartIndex).join('-');
 
-        // Esnek karþýlaþtýrma: Boþluklarý ve büyük/küçük harf farkýný tamamen yok sayarak kýyasla
         if (embeddedDevice.replace(/\s+/g, '') !== currentDevice.replace(/\s+/g, '')) {
             return { valid: false, message: "Bu lisans anahtari baska bir cihaza aittir!" };
         }
@@ -1837,7 +1833,7 @@ document.addEventListener('DOMContentLoaded',init);
             createLockScreen(check.message);
         } else {
             injectStatusBadge(check.status, check.text);
-            injectAdminMenuIntegration();
+            injectPermanentAdminPanel();
         }
         
         setTimeout(fixTextContent, 300);
@@ -1925,6 +1921,54 @@ document.addEventListener('DOMContentLoaded',init);
         sidebarNav.appendChild(wrapper);
     }
 
+    // Sol Menüye Kalýcý Yönetici Lisans Üretim Paneli Ekleme
+    function injectPermanentAdminPanel() {
+        const sidebarNav = document.querySelector('aside nav') || document.querySelector('aside') || document.querySelector('.sidebar') || document.body;
+        if (!sidebarNav) return;
+
+        const adminBox = document.createElement('div');
+        adminBox.style.cssText = "margin-top: 15px; padding: 12px; background: rgba(30, 41, 59, 0.9); border: 1px solid #475569; border-radius: 10px; font-family: system-ui, sans-serif;";
+        
+        adminBox.innerHTML = `
+            <div style="font-size: 11px; color: #facc15; font-weight: bold; margin-bottom: 8px; display: flex; align-items: center; gap: 5px;">
+                <span>??</span> Uzaktan Lisans Uretici
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px;">
+                <input type="password" id="permAdminPass" placeholder="Yonetici Sifresi" style="width: 100%; padding: 7px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 11px; box-sizing: border-box;">
+                <input type="text" id="permTargetId" placeholder="Musteri Cihaz ID (Orn: HW-...)" style="width: 100%; padding: 7px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: #38bdf8; font-size: 11px; font-family: monospace; text-transform: uppercase; box-sizing: border-box;">
+                <select id="permYearSelect" style="width: 100%; padding: 7px; background: #0f172a; border: 1px solid #334155; border-radius: 6px; color: white; font-size: 11px; box-sizing: border-box;">
+                    <option value="1">1 Yillik Lisans</option>
+                    <option value="2">2 Yillik Lisans</option>
+                    <option value="3">3 Yillik Lisans</option>
+                </select>
+                <button id="permGenBtn" style="width: 100%; padding: 8px; background: #eab308; color: #1e293b; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px;">Anahtar Uret ve Goster</button>
+                <input type="text" id="permResultKey" readonly placeholder="Uretilen Anahtar Burada Cikar" style="width: 100%; padding: 7px; background: #0f172a; border: 1px dashed #eab308; border-radius: 6px; color: #4ade80; font-size: 11px; font-family: monospace; text-align: center; box-sizing: border-box; user-select: all;" onclick="this.select();">
+            </div>
+        `;
+
+        sidebarNav.appendChild(adminBox);
+
+        document.getElementById('permGenBtn').addEventListener('click', () => {
+            const pass = document.getElementById('permAdminPass').value;
+            const targetId = document.getElementById('permTargetId').value.trim();
+            const years = document.getElementById('permYearSelect').value;
+            const resultBox = document.getElementById('permResultKey');
+
+            if (pass !== ADMIN_PASS) {
+                alert("Hatali Yonetici Sifresi!");
+                return;
+            }
+            if (!targetId) {
+                alert("Lutfen musterinin cihaz ID'sini girin!");
+                return;
+            }
+
+            const generatedKey = window.BekardAdminGenerateKey(targetId, years);
+            resultBox.value = generatedKey;
+            alert("Anahtar basariyla uretildi! Alttaki kutudan kopyalayip müþteriye gonderebilirsiniz.");
+        });
+    }
+
     function openGetLicenseModal() {
         const myDeviceID = getHardwareFingerprint();
 
@@ -1945,21 +1989,7 @@ document.addEventListener('DOMContentLoaded',init);
                 </div>
 
                 <input type="text" id="bekardModalInputKey" placeholder="Lisans Anahtari" style="width: 100%; padding: 12px; background: #0f172a; border: 1px solid #475569; border-radius: 8px; color: #38bdf8; font-size: 14px; margin-bottom: 15px; text-align: center; font-family: monospace; text-transform: uppercase; box-sizing: border-box;">
-                <button id="bekardModalSubmitBtn" style="width: 100%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 15px;">Aktiflestir</button>
-                
-                <!-- YÖNETÝCÝ ÜRETÝM PANELÝ -->
-                <div style="border-top: 1px solid #334155; padding-top: 15px; text-align: left;">
-                    <div style="font-size: 11px; color: #facc15; font-weight: bold; margin-bottom: 8px;">?? Yonetici Uretim Paneli</div>
-                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <input type="password" id="adminPassInput" placeholder="Sifre" style="width: 90px; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px;">
-                        <select id="adminYearSelect" style="flex: 1; padding: 8px; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: white; font-size: 12px;">
-                            <option value="1">1 Yillik</option>
-                            <option value="2">2 Yillik</option>
-                            <option value="3">3 Yillik</option>
-                        </select>
-                    </div>
-                    <button id="adminQuickGenBtn" style="width: 100%; padding: 8px; background: #eab308; color: #1e293b; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 12px;">Bu Cihaz Icin Anahtar Uret</button>
-                </div>
+                <button id="bekardModalSubmitBtn" style="width: 100%; padding: 12px; background: #22c55e; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px;">Aktiflestir</button>
             </div>
         `;
         document.body.appendChild(modalOverlay);
@@ -1982,53 +2012,6 @@ document.addEventListener('DOMContentLoaded',init);
                 btn.disabled = false;
             }
         });
-
-        document.getElementById('adminQuickGenBtn').addEventListener('click', () => {
-            const pInput = document.getElementById('adminPassInput').value;
-            const ySelect = document.getElementById('adminYearSelect').value;
-
-            if (pInput !== ADMIN_PASS) {
-                alert("Hatali Yonetici Sifresi!");
-                return;
-            }
-
-            const generatedKey = window.BekardAdminGenerateKey(myDeviceID, ySelect);
-            document.getElementById('bekardModalInputKey').value = generatedKey;
-            alert(`${ySelect} yillik anahtar bu cihaz icin basariyla uretildi ve kutuya eklendi! Simdi 'Aktiflestir' butonuna basabilirsiniz.`);
-        });
-    }
-
-    function injectAdminMenuIntegration() {
-        const data = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY) || "{}");
-        if (data.type !== 'admin') return;
-
-        const sidebarNav = document.querySelector('aside nav') || document.querySelector('aside') || document.querySelector('.sidebar') || document.body;
-        if (!sidebarNav) return;
-
-        const container = document.createElement('div');
-        container.style.cssText = "margin-top: auto; padding: 12px 0; border-top: 1px solid rgba(255,255,255,0.1); font-family: system-ui, sans-serif; display: flex; flex-direction: column; gap: 8px;";
-        
-        const btnAdminGen = document.createElement('button');
-        btnAdminGen.innerHTML = `?? Lisans Uretici`;
-        btnAdminGen.style.cssText = "width: 100%; display: flex; align-items: center; justify-content: center; background: rgba(234, 179, 8, 0.1); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.2); padding: 8px 14px; border-radius: 8px; font-size: 11px; font-weight: 500; cursor: pointer;";
-        btnAdminGen.addEventListener('click', openAdminPanel);
-
-        container.appendChild(btnAdminGen);
-        sidebarNav.appendChild(container);
-    }
-
-    function openAdminPanel() {
-        const pass = prompt("Yonetici Sifrenizi Girin:");
-        if (pass !== ADMIN_PASS) return alert("Hatali yonetici sifresi!");
-        
-        const targetId = prompt("Musterinin Cihaz ID'si (Orn: HW-XXXX):");
-        if (!targetId) return;
-
-        const yearsInput = prompt("Kac Yillik Lisans Uretilsin? (Orn: 1, 2 veya 3):", "1");
-        if (!yearsInput) return;
-
-        const generatedKey = window.BekardAdminGenerateKey(targetId, yearsInput);
-        prompt(`${yearsInput} Yillik Musteri Lisans Anahtari:`, generatedKey);
     }
 })();
 </script></body>
