@@ -1666,8 +1666,9 @@ document.addEventListener('DOMContentLoaded',init);
   <!-- 
   <!-- 
   <!-- 
+  <!-- 
   ================================================================================
-  BEKARD v2026: Sifre Korumali Gizli Yonetici Modulu ve Lisans Mimarisi (Karakter Temizligi)
+  BEKARD v2026: Guclendirilmis Zaman Kontrol ve Lisans Mimarisi
   ================================================================================
 -->
 <script>
@@ -1675,9 +1676,9 @@ document.addEventListener('DOMContentLoaded',init);
     const ADMIN_PASS = "Mcinar_2026";
     const TRIAL_DAYS = 7;
 
-    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v24";
-    const HARDWARE_FINGERPRINT_KEY = "bekard_isg_hw_lock_v24";
-    const LAST_SEEN_DATE_KEY = "bekard_isg_last_seen_date_v24";
+    const LICENSE_STORAGE_KEY = "bekard_isg_active_license_v25";
+    const HARDWARE_FINGERPRINT_KEY = "bekard_isg_hw_lock_v25";
+    const SECURE_TIMESTAMP_KEY = "bekard_isg_secure_ts_v25";
     const SECRET_SALT = "BEKARD_ISG_SECURE_2026_KEY";
 
     function getHardwareFingerprint() {
@@ -1702,36 +1703,48 @@ document.addEventListener('DOMContentLoaded',init);
     }
 
     function getSecureTrialInfo() {
-        const hwId = getHardwareFingerprint();
-        const backupKey = `bekard_trial_backup_${hwId}`;
-        const now = new Date();
+        const now = Date.now();
+        let secureData = null;
 
-        let lastSeenStr = localStorage.getItem(LAST_SEEN_DATE_KEY);
-        if (lastSeenStr) {
-            let lastSeenDate = new Date(lastSeenStr);
-            if (now.getTime() < lastSeenDate.getTime()) {
-                localStorage.setItem(backupKey, new Date(now.getTime() - (TRIAL_DAYS * 24 * 60 * 60 * 1000)).toISOString());
-                return { isExpired: true, remaining: 0, tampered: true };
-            }
+        try {
+            secureData = JSON.parse(localStorage.getItem(SECURE_TIMESTAMP_KEY));
+        } catch(e) {
+            secureData = null;
         }
-        localStorage.setItem(LAST_SEEN_DATE_KEY, now.toISOString());
 
-        let installStr = localStorage.getItem('bekard_install_date') || localStorage.getItem(backupKey);
-        
-        if (!installStr) {
-            installStr = now.toISOString();
-            localStorage.setItem('bekard_install_date', installStr);
-            localStorage.setItem(backupKey, installStr);
+        if (!secureData || typeof secureData !== 'object') {
+            const initialData = {
+                installTime: now,
+                lastKnownTime: now,
+                maxElapsed: 0
+            };
+            localStorage.setItem(SECURE_TIMESTAMP_KEY, JSON.stringify(initialData));
+            return { isExpired: false, remaining: TRIAL_DAYS, tampered: false };
         }
-        
-        const installDate = new Date(installStr);
-        const diffMs = now.getTime() - installDate.getTime();
-        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-        
-        const remainingDays = TRIAL_DAYS - diffDays;
-        
+
+        let installTime = secureData.installTime;
+        let lastKnownTime = secureData.lastKnownTime;
+        let maxElapsed = secureData.maxElapsed || 0;
+
+        if (now < lastKnownTime) {
+            return { isExpired: true, remaining: 0, tampered: true };
+        }
+
+        let sessionElapsed = now - lastKnownTime;
+        if (sessionElapsed > 0) {
+            maxElapsed += sessionElapsed;
+        }
+
+        secureData.lastKnownTime = now;
+        secureData.maxElapsed = maxElapsed;
+        localStorage.setItem(SECURE_TIMESTAMP_KEY, JSON.stringify(secureData));
+
+        const trialDurationMs = TRIAL_DAYS * 24 * 60 * 60 * 1000;
+        const remainingMs = trialDurationMs - maxElapsed;
+        const remainingDays = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+
         return {
-            isExpired: remainingDays <= 0,
+            isExpired: remainingMs <= 0,
             remaining: remainingDays > 0 ? remainingDays : 0,
             tampered: false
         };
@@ -1780,21 +1793,21 @@ document.addEventListener('DOMContentLoaded',init);
     window.BekardLicenseManager = {
         async verifyAndActivate(inputKey) {
             if (inputKey === ADMIN_PASS) {
-                const expiry = new Date(new Date().getTime() + (365 * 10 * 24 * 60 * 60 * 1000));
-                localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify({ type: 'admin', key: 'ADMIN', expiresAt: expiry.toISOString() }));
+                const expiry = Date.now() + (365 * 10 * 24 * 60 * 60 * 1000);
+                localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify({ type: 'admin', key: 'ADMIN', expiresAt: expiry }));
                 return { success: true, message: "Yonetici yetkisi onaylandi!" };
             }
 
             const check = validateDeviceSignedKey(inputKey);
             if (check.valid) {
                 const totalDays = 365 * check.years;
-                const expiryDate = new Date(new Date().getTime() + (totalDays * 24 * 60 * 60 * 1000));
+                const expiryTimestamp = Date.now() + (totalDays * 24 * 60 * 60 * 1000);
                 
                 localStorage.setItem(LICENSE_STORAGE_KEY, JSON.stringify({
                     type: 'full',
                     key: inputKey,
                     years: check.years,
-                    expiresAt: expiryDate.toISOString()
+                    expiresAt: expiryTimestamp
                 }));
                 return { success: true, message: check.message };
             }
@@ -1804,12 +1817,13 @@ document.addEventListener('DOMContentLoaded',init);
         CheckStatus() {
             try {
                 const data = JSON.parse(localStorage.getItem(LICENSE_STORAGE_KEY));
+                const now = Date.now();
+
                 if (data && data.key === 'ADMIN') return { status: 'licensed', isLocked: false, text: 'Yonetici Modu' };
                 if (data && data.key) {
                     const check = validateDeviceSignedKey(data.key);
                     if (check.valid) {
-                        const now = new Date();
-                        const expires = new Date(data.expiresAt);
+                        const expires = data.expiresAt || 0;
                         if (now <= expires) {
                             return { status: 'licensed', isLocked: false, text: `${check.years} Yillik Lisansli` };
                         }
